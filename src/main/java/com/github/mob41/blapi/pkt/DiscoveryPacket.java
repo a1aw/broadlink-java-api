@@ -69,7 +69,7 @@ public class DiscoveryPacket implements Packet {
 		int year = cal.get(Calendar.YEAR);
 		int dayOfWk = dayOfWeekConv(cal.get(Calendar.DAY_OF_WEEK)); //Day of week (May return -1 if Calendar return a wrong field value)
 		int dayOfMn = cal.get(Calendar.DAY_OF_MONTH); //Day of month
-		int month = cal.get(Calendar.MONTH); //Month
+		int month = cal.get(Calendar.MONTH + 1); //Month
 		
 		if (debug){
 			log.debug("min=" + min + " hr=" + hr);
