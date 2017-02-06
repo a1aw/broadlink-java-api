@@ -28,6 +28,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,6 +110,8 @@ public abstract class BLDevice {
 	public static final int DISCOVERY_DEST_PORT = 80;
 	
 	public static final int DISCOVERY_RECEIVE_BUFFER_SIZE = 0x40; //64-bytes
+	
+	public static final int DEFAULT_TIMEOUT = 10000; //10 seconds (10000 ms)
 
 	protected BLDevice(short deviceType, String host, Mac mac) {
 		
@@ -117,70 +120,141 @@ public abstract class BLDevice {
 	public static BLDevice createInstance(short deviceType, String host, Mac mac){
 		switch (deviceType){
 		case DEV_RM_2:
+			return new RM2Device(host, mac);
 		}
 		return null;
 	}
 	
+	public static BLDevice[] discoverDevices() throws IOException{
+		return discoverDevices(DEFAULT_TIMEOUT);
+	}
+	
+	public static BLDevice[] discoverDevices(int timeout) throws IOException{
+		return discoverDevices(InetAddress.getLocalHost(), DiscoveryPacket.DEFAULT_SOURCE_PORT, timeout);
+	}
+	
 	public static BLDevice[] discoverDevices(InetAddress sourceIpAddr, int sourcePort, int timeout) throws IOException{
-		  List<BLDevice> devices = new ArrayList<BLDevice>(50);
-		  
-		  DiscoveryPacket dpkt = new DiscoveryPacket(sourceIpAddr, sourcePort);
-		  
-		  DatagramSocket sock = new DatagramSocket(sourcePort, sourceIpAddr);
-		  sock.setBroadcast(true);
-		  sock.setReuseAddress(true);
-		  
-		  byte[] sendBytes = dpkt.getData();
-		  DatagramPacket sendpack = new DatagramPacket(sendBytes, sendBytes.length,
+		boolean debug = log.isDebugEnabled();
+		
+		if (debug)
+			log.debug("Discovering devices");
+		
+		List<BLDevice> devices = new ArrayList<BLDevice>(50);
+		
+		if (debug)
+			log.debug("Constructing DiscoveryPacket");
+		
+		DiscoveryPacket dpkt = new DiscoveryPacket(sourceIpAddr, sourcePort);
+		
+		DatagramSocket sock = new DatagramSocket(sourcePort, sourceIpAddr);
+		
+		sock.setBroadcast(true);
+		sock.setReuseAddress(true);
+		
+		byte[] sendBytes = dpkt.getData();
+		DatagramPacket sendpack = new DatagramPacket(sendBytes, sendBytes.length,
 				  InetAddress.getByName("255.255.255.255"), DISCOVERY_DEST_PORT);
-		  sock.send(sendpack);
-		  
-		  byte[] receBytes = new byte[DISCOVERY_RECEIVE_BUFFER_SIZE];
-		  
-		  DatagramPacket recePacket = new DatagramPacket(receBytes, 0, receBytes.length);
-		  if (timeout == 0){
-			 sock.receive(recePacket);
-			 sock.close();
-			 
-			 String host = recePacket.getAddress().getHostAddress();
-			 Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
-			 short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
-			 
-			 BLDevice inst = createInstance(deviceType, host, mac);
-			 
-			 if (inst != null){
-				 devices.add(inst);
-			 }
-		  } else {
-			  long startTime = System.currentTimeMillis();
-			  long elapsed;
-			  while ((elapsed = System.currentTimeMillis() - startTime) < timeout){
-				  sock.setSoTimeout((int) (timeout - elapsed));
-				  
-				  try {
-					  sock.receive(recePacket);
-				  } catch (SocketTimeoutException e){
-					  break;
-				  }
-				  
-				  String host = recePacket.getAddress().getHostAddress();
-				  Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
-				  short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
-				  
-				  BLDevice inst = createInstance(deviceType, host, mac);
-				  
-				  if (inst != null){
-					  devices.add(inst);
-				  }
-			  }
-		  }
-		  
-		  BLDevice[] out = new BLDevice[devices.size()];
-		  for (int i = 0; i < out.length; i++){
-			  out[i] = devices.get(i);
-		  }
-		  
-		  return out;
+		
+		if (debug)
+			log.debug("Sending broadcast");
+		
+		sock.send(sendpack);
+		
+		byte[] receBytes = new byte[DISCOVERY_RECEIVE_BUFFER_SIZE];
+		
+		DatagramPacket recePacket = new DatagramPacket(receBytes, 0, receBytes.length);
+		if (timeout == 0){
+			if (debug)
+				log.debug("No timeout was set. Blocking thread until received");
+				log.debug("Waiting for datagrams");
+			
+			sock.receive(recePacket);
+			
+			if (debug)
+				log.debug("Received. Closing socket");
+			
+			sock.close();
+			
+			String host = recePacket.getAddress().getHostAddress();
+			Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
+			short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
+			
+			if (debug)
+				log.debug("Info: host=" + host + " mac=" + mac.getMacString() + " deviceType=0x" + Integer.toHexString(deviceType));
+				log.debug("Creating BLDevice instance");
+			
+			BLDevice inst = createInstance(deviceType, host, mac);
+			
+			if (inst != null){
+				if (debug)
+					log.debug("Adding to found devices list");
+				
+				devices.add(inst);
+			} else if (debug){
+				log.debug("Cannot create instance, returned null, not adding to found devices list");
+			}
+		} else {
+			if (debug)
+				log.debug("A timeout of " + timeout + " ms was set. Running loop");
+			
+			long startTime = System.currentTimeMillis();
+			long elapsed;
+			while ((elapsed = System.currentTimeMillis() - startTime) < timeout){
+				if (debug)
+					log.debug("Elapsed: " + elapsed + " ms");
+					log.debug("Socket timeout: timeout-elapsed=" + (timeout - elapsed));
+				
+				sock.setSoTimeout((int) (timeout - elapsed));
+				
+				try {
+					if (debug)
+						log.debug("Waiting for datagrams");
+					
+					sock.receive(recePacket);
+				} catch (SocketTimeoutException e){
+					if (debug)
+						log.debug("Socket timed out for " + (timeout - elapsed) + " ms", e);
+					
+					break;
+				}
+				
+				if (debug)
+					log.debug("Received datagram");
+				
+				String host = recePacket.getAddress().getHostAddress();
+				Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
+				short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
+				
+				if (debug)
+					log.debug("Info: host=" + host + " mac=" + mac.getMacString() + " deviceType=0x" + Integer.toHexString(deviceType));
+					log.debug("Creating BLDevice instance");
+				
+				BLDevice inst = createInstance(deviceType, host, mac);
+				
+				if (inst != null){
+					if (debug)
+						log.debug("Adding to found devices list");
+					
+					devices.add(inst);
+				} else if (debug){
+					log.debug("Cannot create instance, returned null, not adding to found devices list");
+				}
+			}
+		}
+		
+		if (debug)
+			log.debug("Converting list to array");
+		
+		BLDevice[] out = new BLDevice[devices.size()];
+		
+		for (int i = 0; i < out.length; i++){
+			out[i] = devices.get(i);
+		}
+		
+		if (debug)
+			log.debug("End of device discovery");
+		
+		return out;
 	}
 	
 	/**
