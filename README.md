@@ -12,9 +12,9 @@ Thanks [mjg59](https://github.com/mjg59) in developing the [python-broadlink](ht
 
 I would like to integrate in my own home system (private, [SakuraHome](https://github.com/mob41/Sakura)) so I suggested to start the work of the API in Java.
 
-## Adding to your project
+## Ways to add into your project
 
-a. (Eclipse) Clone the project via ```git clone https://github.com/mob41/broadlink-java-api.git``` or via the [download ZIP](https://github.com/mob41/broadlink-java-api/archive/master.zip) and extract the ZIP to a folder.
+1. (Eclipse) Clone the project via ```git clone https://github.com/mob41/broadlink-java-api.git``` or via the [download ZIP](https://github.com/mob41/broadlink-java-api/archive/master.zip) and extract the ZIP to a folder.
    
    And add the project into your Eclipse IDE by right clicking the ```Package Explorer```, and,
    ```Import...``` -> ```Maven``` -> ```Existing Maven Projects```
@@ -30,8 +30,9 @@ a. (Eclipse) Clone the project via ```git clone https://github.com/mob41/broadli
         <version>0.0.1-SNAPSHOT</version>
     </dependency>
     ```
+    
 
-b. ~~Maven dependency: Add the following to your ```pom.xml``` under ```<dependencies>```~~ The project hasn't published to Maven central, yet.
+2. ~~Maven dependency: Add the following to your ```pom.xml``` under ```<dependencies>```~~ The project hasn't published to Maven central, yet.
 
     ```xml
     <dependency>
@@ -40,6 +41,8 @@ b. ~~Maven dependency: Add the following to your ```pom.xml``` under ```<depende
         <version>0.0.1-SNAPSHOT</version>
     </dependency>
     ```
+    
+
 ## Tutorial
 
 Discovering devices in the local network:
