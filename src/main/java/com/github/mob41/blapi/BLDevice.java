@@ -36,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.CmdPacket;
 import com.github.mob41.blapi.pkt.DiscoveryPacket;
+import com.github.mob41.blapi.pkt.Packet;
 
 /**
  * This is the base class of all Broadlink devices (e.g. SP1, RMPro)
@@ -112,12 +114,49 @@ public abstract class BLDevice {
 	public static final int DISCOVERY_RECEIVE_BUFFER_SIZE = 0x40; //64-bytes
 	
 	public static final int DEFAULT_TIMEOUT = 10000; //10 seconds (10000 ms)
+	
+	private int pktCount = 0;
+	
+	private byte[] key;
+	
+	private byte[] iv;
+	
+	private byte[] id;
+	
+	private DatagramSocket sock;
+	
+	private String host;
+	
+	private Mac mac;
 
-	protected BLDevice(short deviceType, String host, Mac mac) {
+	protected BLDevice(short deviceType, String host, Mac mac) throws IOException{
+		key = INITIAL_KEY;
+		iv = INITIAL_IV;
+		id = new byte[]{0, 0, 0, 0};
+		
+		sock = new DatagramSocket(0);
+		sock.setReuseAddress(true);
+		sock.setBroadcast(true);
+	}
+	
+	public void auth(){
 		
 	}
 	
-	public static BLDevice createInstance(short deviceType, String host, Mac mac){
+	public DatagramPacket sendCmdPkt(byte cmd, byte[] payload) throws IOException{
+		return sendCmdPkt(InetAddress.getLocalHost(), 53, 10, cmd, payload);
+	}
+	
+	public DatagramPacket sendCmdPkt(int timeout, byte cmd, byte[] payload) throws IOException{
+		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, cmd, payload);
+	}
+	
+	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, byte cmd, byte[] payload) throws IOException{
+		CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmd, payload);
+		return sendPkt(cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, 1024);
+	}
+	
+	public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException{
 		switch (deviceType){
 		case DEV_RM_2:
 			return new RM2Device(host, mac);
@@ -275,7 +314,6 @@ public abstract class BLDevice {
 		return out;
 	}
 	
-	/* Not this! This will only send once and close the connection
 	/**
 	 * Sends a compiled packet to a destination host and port, and
 	 * receives a datagram from the source port specified.
@@ -288,7 +326,7 @@ public abstract class BLDevice {
 	 * @param bufSize Receiving datagram's buffer size
 	 * @return The received datagram
 	 * @throws IOException Thrown if socket timed out, cannot bind source IP and source port, no permission, etc.
-	 *\/
+	 */
 	public static DatagramPacket sendPkt(Packet pkt, 
 			InetAddress sourceIpAddr, int sourcePort,
 			InetAddress destIpAddr, int destPort,
@@ -304,14 +342,27 @@ public abstract class BLDevice {
 		sock.send(sendpack);
 		
 		byte[] rece = new byte[bufSize];
-		
 		DatagramPacket recepack = new DatagramPacket(rece, 0, rece.length);
-		sock.setSoTimeout(timeout);
-		sock.receive(recepack);
+		
+		long startTime = System.currentTimeMillis();
+		long elapsed;
+		while ((elapsed = System.currentTimeMillis() - startTime) < timeout){
+			try {
+				sock.send(sendpack);
+				sock.setSoTimeout(1000);
+				sock.receive(recepack);
+				break;
+			} catch (SocketTimeoutException e){
+				if (elapsed > timeout){
+					break;
+				}
+				
+				continue;
+			}
+		}
 		
 		sock.close();
 		
 		return recepack;
 	}
-	*/
 }
