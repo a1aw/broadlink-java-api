@@ -26,7 +26,10 @@ public class CmdPacket implements Packet {
 	 */
 	public CmdPacket(Mac targetMac, int count,
 			byte[] id, byte[] iv, byte[] key,
-			byte cmd, byte[] payload) {
+			CmdPayload cmdPayload) {
+		byte cmd = cmdPayload.getCommand();
+		byte[] payload = cmdPayload.getPayload().getData();
+		
 		count = (count + 1) & 0xffff; //increased by the sendPkt()
 		
 		data = new byte[DEFAULT_BYTES_SIZE + payload.length];

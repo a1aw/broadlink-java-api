@@ -23,6 +23,7 @@
  *******************************************************************************/
 package com.github.mob41.blapi;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPacket;
+import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.DiscoveryPacket;
 import com.github.mob41.blapi.pkt.Packet;
 
@@ -45,7 +47,7 @@ import com.github.mob41.blapi.pkt.Packet;
  * @author Anthony
  *
  */
-public abstract class BLDevice {
+public abstract class BLDevice implements Closeable{
 	
 	private static final Logger log = LoggerFactory.getLogger(BLDevice.class);
 	
@@ -139,21 +141,26 @@ public abstract class BLDevice {
 		sock.setBroadcast(true);
 	}
 	
+	@Override
+	public void close(){
+		sock.close();
+	}
+	
 	public void auth(){
 		
 	}
 	
-	public DatagramPacket sendCmdPkt(byte cmd, byte[] payload) throws IOException{
-		return sendCmdPkt(InetAddress.getLocalHost(), 53, 10, cmd, payload);
+	public DatagramPacket sendCmdPkt(CmdPayload cmdPayload) throws IOException{
+		return sendCmdPkt(10, cmdPayload);
 	}
 	
-	public DatagramPacket sendCmdPkt(int timeout, byte cmd, byte[] payload) throws IOException{
-		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, cmd, payload);
+	public DatagramPacket sendCmdPkt(int timeout, CmdPayload cmdPayload) throws IOException{
+		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, cmdPayload);
 	}
 	
-	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, byte cmd, byte[] payload) throws IOException{
-		CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmd, payload);
-		return sendPkt(cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, 1024);
+	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, CmdPayload cmdPayload) throws IOException{
+		CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
+		return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, 1024);
 	}
 	
 	public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException{
@@ -332,9 +339,35 @@ public abstract class BLDevice {
 			InetAddress destIpAddr, int destPort,
 			int timeout, int bufSize) throws IOException{
 		DatagramSocket sock = new DatagramSocket(sourcePort, sourceIpAddr);
+		
 		sock.setBroadcast(true);
 		sock.setReuseAddress(true);
 		
+		DatagramPacket recePkt = sendPkt(sock, pkt, sourceIpAddr,
+				sourcePort, destIpAddr, destPort, timeout, bufSize);
+		sock.close();
+		
+		return recePkt;
+	}
+	
+	/**
+	 * Sends a compiled packet to a destination host and port, and
+	 * receives a datagram from the source port specified.
+	 * @param sock Uses an external socket
+	 * @param pkt The compiled packet to be sent
+	 * @param sourceIpAddr Source IP address to be binded for receiving datagrams
+	 * @param sourcePort Source Port to be bineded for receiving datagrams
+	 * @param destIpAddr Destination IP address
+	 * @param destPort Destination Port
+	 * @param timeout Socket timeout. 0 will disable the timeout
+	 * @param bufSize Receiving datagram's buffer size
+	 * @return The received datagram
+	 * @throws IOException Thrown if socket timed out, cannot bind source IP and source port, no permission, etc.
+	 */
+	public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, 
+			InetAddress sourceIpAddr, int sourcePort,
+			InetAddress destIpAddr, int destPort,
+			int timeout, int bufSize) throws IOException{
 		//sock.bind(new InetSocketAddress(ipAddr, sourcePort));
 		
 		byte[] data = pkt.getData();
@@ -360,8 +393,6 @@ public abstract class BLDevice {
 				continue;
 			}
 		}
-		
-		sock.close();
 		
 		return recepack;
 	}
