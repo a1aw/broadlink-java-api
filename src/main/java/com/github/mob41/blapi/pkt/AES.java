@@ -6,7 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class AES {
 	
-	private static final String CIPHER_ALGO = "AES/CBC/NOPADDING";
+	private static final String CIPHER_ALGO = "AES/CBC/NoPadding";
 	
 	private static final String KEY_ALGO = "AES";
 	

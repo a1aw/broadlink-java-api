@@ -1,5 +1,8 @@
 package com.github.mob41.blapi.pkt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
 
@@ -9,6 +12,8 @@ import com.github.mob41.blapi.mac.Mac;
  *
  */
 public class CmdPacket implements Packet {
+	
+	private static final Logger log = LoggerFactory.getLogger(CmdPacket.class);
 
 	private static final int DEFAULT_BYTES_SIZE = 0x38; //56-bytes
 	
@@ -27,10 +32,20 @@ public class CmdPacket implements Packet {
 	public CmdPacket(Mac targetMac, int count,
 			byte[] id, byte[] iv, byte[] key,
 			CmdPayload cmdPayload) {
+		boolean debug = log.isDebugEnabled();
+		
 		byte cmd = cmdPayload.getCommand();
 		byte[] payload = cmdPayload.getPayload().getData();
 		
+		if (debug)
+			log.debug("Constructor CmdPacket starts");
+			log.debug("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
+		
 		count = (count + 1) & 0xffff; //increased by the sendPkt()
+		
+		if (debug)
+			log.debug("New count: " + count + " (added by 1)");
+			log.debug("Creating byte array with data");
 		
 		data = new byte[DEFAULT_BYTES_SIZE + payload.length];
 		
@@ -64,34 +79,58 @@ public class CmdPacket implements Packet {
 		data[0x32] = id[2];
 		data[0x33] = id[3];
 		
+		if (debug)
+			log.debug("Running checksum for headers");
+		
 		short checksum = (short) 0xbeaf;
 		for (int i = 0; i < payload.length; i++){
 			checksum += payload[i];
 			checksum &= 0xffff;
 		}
 		
+		data[0x34] = (byte) (checksum & 0xff);
+		data[0x35] = (byte) (checksum >> 8);
+		
+		if (debug)
+			log.debug("Headers checksum: " + Integer.toHexString(checksum));
+			log.debug("Creating AES instance with provided key, iv");
+		
 		AES aes = new AES(key, iv);
 		
 		try {
+			if (debug)
+				log.debug("Encrypting payload");
+			
 			payload = aes.encrypt(payload);
+			
+			if (debug)
+				log.debug("Encrypted. len=" + payload.length);
 		} catch (Exception e) {
+			log.error("Cannot encrypt payload! Aborting", e);
 			throw new BLApiRuntimeException("Cannot encrypt payload", e);
 		}
-		
-		data[0x34] = (byte) (checksum & 0xff);
-		data[0x35] = (byte) (checksum >> 8);
 		
 		for (int b = DEFAULT_BYTES_SIZE, i = 0; b < data.length; b += 0x01, i++){
 			data[b] = payload[i];
 		}
+		
+		if (debug)
+			log.debug("Running whole packet checksum");
 		
 		checksum = (short) 0xbeaf;
 		for (int i = 0; i < data.length; i++){
 			checksum += data[i];
 			checksum &= 0xffff;
 		}
+		
+		if (debug)
+			log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
+		
 		data[0x20] = (byte) (checksum & 0xff);
 		data[0x21] = (byte) (checksum >> 8);
+		
+		if (debug)
+			log.debug("End of CmdPacket constructor");
 	}
 
 	@Override

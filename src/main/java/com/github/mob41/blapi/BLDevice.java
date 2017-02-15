@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.AES;
+import com.github.mob41.blapi.pkt.AuthCmdPayload;
+import com.github.mob41.blapi.pkt.AuthPayload;
 import com.github.mob41.blapi.pkt.CmdPacket;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.DiscoveryPacket;
@@ -125,6 +128,8 @@ public abstract class BLDevice implements Closeable{
 	
 	private byte[] id;
 	
+	private final short deviceType;
+	
 	private DatagramSocket sock;
 	
 	private String host;
@@ -136,6 +141,11 @@ public abstract class BLDevice implements Closeable{
 		iv = INITIAL_IV;
 		id = new byte[]{0, 0, 0, 0};
 		
+		this.deviceType = deviceType;
+		
+		this.host = host;
+		this.mac = mac;
+		
 		sock = new DatagramSocket(0);
 		sock.setReuseAddress(true);
 		sock.setBroadcast(true);
@@ -146,21 +156,154 @@ public abstract class BLDevice implements Closeable{
 		sock.close();
 	}
 	
-	public void auth(){
+	/**
+	 * Returns the device type of this Broadlink device
+	 * @return The device type in <code>short</code>
+	 */
+	public short getDeviceType(){
+		return deviceType;
+	}
+	
+	/**
+	 * Returns this Broadlink device's hostname / IP address
+	 * @return The hostname / IP address in String
+	 */
+	public String getHost(){
+		return host;
+	}
+	
+	/**
+	 * Returns this Broadlink device's MAC address
+	 * @return The MAC address in BLApi's <code>Mac</code> implementation
+	 */
+	public Mac getMac(){
+		return mac;
+	}
+	
+	public byte[] getIv(){
+		return iv;
+	}
+	
+	public byte[] getKey(){
+		return key;
+	}
+	
+	//TODO: remove this
+	//Development purpose
+	public static void printBytes(byte[] data){
+		for(int i = 0; i < data.length; i++){
+			log.debug("i:" + i + ": " + Integer.toHexString(data[i]));
+		}
+	}
+	
+	/**
+	 * Authenticates with the broadlink device, before any other control commands
+	 * @return Boolean whether the method is success or not
+	 * @throws IOException If I/O goes wrong
+	 */
+	public boolean auth() throws IOException{
+		boolean debug = log.isDebugEnabled();
 		
+		if (debug)
+			log.debug("Authentication method starts");
+			log.debug("Constructing AuthCmdPayload");
+		
+		AuthCmdPayload sendPayload = new AuthCmdPayload(AuthPayload.getDefaultDeviceId(), new byte[]{(int) 'T',(int) 'e',(int) 's',(int) 't',
+				(int) ' ',(int) ' ',(int) '1'});
+		
+		if (debug)
+			log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand()) + " len=" + sendPayload.getPayload().getData().length);
+		
+		DatagramPacket sendPack = sendCmdPkt(10000, 88, sendPayload);
+		
+		if (debug)
+			log.debug("Received datagram");
+		
+		byte[] data = sendPack.getData();
+		
+		//printBytes(data);
+		
+		if (debug)
+			log.debug("Getting encrypted data from 0x38 to the end");
+		
+		byte[] encData = subbytes(data, 0x38, data.length);
+		
+		if (debug)
+			log.debug("encDataLen=" + encData.length);
+		
+		if (encData.length % 16 != 0){
+			log.warn("TODO: Incompatible decryption with non-16 multiple bytes. Forcing to have 1024 bytes");
+			
+			byte[] newBytes = new byte[1024];
+			for (int i = 0; i < encData.length; i++){
+				newBytes[i] = encData[i];
+			}
+			encData = newBytes;
+		}
+		
+		if (debug)
+			log.debug("Creating AES instance with initial iv, key");
+		
+		AES aes = new AES(INITIAL_IV, INITIAL_KEY);
+		
+		byte[] payload = null;
+		try {
+			if (debug)
+				log.debug("Decrypting encrypted data");
+			
+			payload = aes.decrypt(encData);
+			
+			if (debug)
+				log.debug("Decrypted. len=" + payload.length);
+			
+		} catch (Exception e) {
+			log.error("Received datagram decryption error. Aborting method", e);
+			return false;
+		}
+		
+		//printBytes(payload);
+		
+		if (debug)
+			log.debug("Getting key from 0x04 to 0x14");
+		
+		key = subbytes(payload, 0x04, 0x14);
+		
+		//printBytes(key);
+		
+		if (key.length % 16 != 0){
+			log.error("Received key len is not a multiple of 16! Aborting");
+			return false;
+		}
+		
+		if (debug)
+			log.debug("Getting ID from 0x00 to 0x04");
+		
+		id = subbytes(payload, 0x00, 0x04);
+		
+		printBytes(id);
+		
+		if (debug)
+			log.debug("ID len=" + id.length);
+			log.debug("End of authentication method");
+		
+		return true;
 	}
 	
 	public DatagramPacket sendCmdPkt(CmdPayload cmdPayload) throws IOException{
-		return sendCmdPkt(10, cmdPayload);
+		return sendCmdPkt(10000, cmdPayload);
 	}
 	
 	public DatagramPacket sendCmdPkt(int timeout, CmdPayload cmdPayload) throws IOException{
-		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, cmdPayload);
+		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, 1024, cmdPayload);
 	}
 	
-	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, CmdPayload cmdPayload) throws IOException{
+	public DatagramPacket sendCmdPkt(int timeout, int bufSize, CmdPayload cmdPayload) throws IOException{
+		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, bufSize, cmdPayload);
+	}
+	
+	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize, CmdPayload cmdPayload) throws IOException{
 		CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
-		return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, 1024);
+		return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, bufSize);
 	}
 	
 	public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException{
@@ -303,18 +446,39 @@ public abstract class BLDevice implements Closeable{
 		return out;
 	}
 	
+	public static byte[] subbytesTillNull(byte[] data, int offset){
+		List<Byte> bytes = new ArrayList<Byte>(data.length);
+		
+		for (int i = offset; i < bytes.size(); i++){
+			if ((bytes.get(i) & 0xff) == 0x00){ //null
+				bytes.add(bytes.get(i));
+			} else {
+				break;
+			}
+		}
+		
+		byte[] out = new byte[bytes.size()];
+		
+		for (int i = 0; i < bytes.size(); i++){
+			out[i] = data[i];
+		}
+		
+		return out;
+	}
+	
 	/**
 	 * Picks bytes from start-set to the end-set in a bytes array
 	 * @param data The bytes array to be used
 	 * @param start The starting position to be picked
 	 * @param end The ending position to be picked
+	 * @param endAtNull Whether return at null
 	 * @return The bytes array picked with length (<code>end - start</code>)
 	 */
 	public static byte[] subbytes(byte[] data, int start, int end){
 		byte[] out = new byte[end - start];
 		
 		int outi = 0;
-		for (int i = start; i < end; i += 0x01, outi++){
+		for (int i = start; i < end; i++, outi++){
 			out[outi] = data[i];
 		}
 		
@@ -371,6 +535,8 @@ public abstract class BLDevice implements Closeable{
 		//sock.bind(new InetSocketAddress(ipAddr, sourcePort));
 		
 		byte[] data = pkt.getData();
+		System.out.println("DESTIP: " + destIpAddr.getHostAddress());
+		System.out.println("DESTPORT: " + destPort);
 		DatagramPacket sendpack = new DatagramPacket(data, data.length, destIpAddr, destPort);
 		sock.send(sendpack);
 		
