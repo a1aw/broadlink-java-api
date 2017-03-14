@@ -29,9 +29,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,7 @@ public abstract class BLDevice implements Closeable{
 			0x5a, 0x2e, 0x6f, 0x58
 	}; //16-short
 	
-	public static final short DEV_SP1 = 0x2711;
+	public static final short DEV_SP1 = 0x0;
 	
 	public static final short DEV_SP2 = 0x2711;
 	
@@ -130,6 +131,8 @@ public abstract class BLDevice implements Closeable{
 	
 	private final short deviceType;
 	
+	private String deviceDescription;
+	
 	private DatagramSocket sock;
 	
 	private String host;
@@ -142,7 +145,7 @@ public abstract class BLDevice implements Closeable{
 		id = new byte[]{0, 0, 0, 0};
 		
 		this.deviceType = deviceType;
-		
+				
 		this.host = host;
 		this.mac = mac;
 		
@@ -188,14 +191,14 @@ public abstract class BLDevice implements Closeable{
 		return key;
 	}
 	
-	//TODO: remove this
-	//Development purpose
-	public static void printBytes(byte[] data){
-		for(int i = 0; i < data.length; i++){
-			log.debug("i:" + i + ": " + Integer.toHexString(data[i]));
-		}
+	public String getDeviceDescription() {
+		return deviceDescription;
 	}
-	
+
+	public void setDeviceDescription(String deviceDescription) {
+		this.deviceDescription = deviceDescription;
+	}
+
 	/**
 	 * Authenticates with the broadlink device, before any other control commands
 	 * @return Boolean whether the method is success or not
@@ -261,14 +264,14 @@ public abstract class BLDevice implements Closeable{
 			return false;
 		}
 		
-		//printBytes(payload);
+		log.debug("Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
 		
 		if (debug)
 			log.debug("Getting key from 0x04 to 0x14");
 		
 		key = subbytes(payload, 0x04, 0x14);
 		
-		//printBytes(key);
+		log.debug("Packet received key bytes: " + DatatypeConverter.printHexBinary(key));
 		
 		if (key.length % 16 != 0){
 			log.error("Received key len is not a multiple of 16! Aborting");
@@ -280,7 +283,7 @@ public abstract class BLDevice implements Closeable{
 		
 		id = subbytes(payload, 0x00, 0x04);
 		
-		printBytes(id);
+		log.debug("Packet received id bytes: " + DatatypeConverter.printHexBinary(id));
 		
 		if (debug)
 			log.debug("ID len=" + id.length);
@@ -308,8 +311,34 @@ public abstract class BLDevice implements Closeable{
 	
 	public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException{
 		switch (deviceType){
+		case DEV_SP1:
+			return new SP1Device(host, mac);
+		case DEV_SP2:
+		case DEV_SP2_HONEYWELL_ALT1:
+		case DEV_SP2_HONEYWELL_ALT2:
+		case DEV_SP2_HONEYWELL_ALT3:
+		case DEV_SP2_HONEYWELL_ALT4:
+		case DEV_SPMINI:
+		case DEV_SP3:
+		case DEV_SPMINI2:
+		case DEV_SPMINI_OEM_ALT1:
+		case DEV_SPMINI_OEM_ALT2:
+		case DEV_SPMINI_PLUS:
+			return new SP2Device(deviceType, host, mac);
 		case DEV_RM_2:
-			return new RM2Device(host, mac);
+		case DEV_RM_MINI:
+		case DEV_RM_PRO_PHICOMM:
+		case DEV_RM_2_HOME_PLUS:
+		case DEV_RM_2_2HOME_PLUS_GDT:
+		case DEV_RM_2_PRO_PLUS:
+		case DEV_RM_2_PRO_PLUS_2:
+		case DEV_RM_2_PRO_PLUS_2_BL:
+		case DEV_RM_MINI_SHATE:
+			return new RMDevice(deviceType, host, mac);
+		case DEV_A1:
+			return new A1Device(host, mac);
+		case DEV_MP1:
+			return new MP1Device(host, mac);
 		}
 		return null;
 	}
