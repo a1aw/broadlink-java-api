@@ -1,10 +1,12 @@
 package com.github.mob41.blapi;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class DevicesTest {
 
     @Test
+    @Ignore
     public void testA1() throws Exception {
         BLDevice[] devs = BLDevice.discoverDevices(0);
         System.out.println(devs.length);
