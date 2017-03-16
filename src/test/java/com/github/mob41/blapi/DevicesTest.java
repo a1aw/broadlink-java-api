@@ -23,6 +23,7 @@ class DevicesTest {
 	        	break;
 	        case BLDevice.DEV_MP1:
 	        	byte byteData = ((MP1Device)dev).checkPowerRaw();
+	        	System.out.println("MP1 Device srtatus byte: " + byteData);
 	        	break;
 			case BLDevice.DEV_SP2:
 			case BLDevice.DEV_SP2_HONEYWELL_ALT1:
@@ -36,9 +37,11 @@ class DevicesTest {
 			case BLDevice.DEV_SPMINI_OEM_ALT2:
 			case BLDevice.DEV_SPMINI_PLUS:
 	        	boolean state = ((SP2Device)dev).checkPower();
+	        	System.out.println("SP2Device returned state: " + state);
 	        	break;
 			case BLDevice.DEV_SP1:
 				((SP1Device)dev).setPower(true);
+				System.out.println("SP1Device set power to true");
 	        	break;
 			case BLDevice.DEV_RM_2:
 			case BLDevice.DEV_RM_MINI:
@@ -50,6 +53,7 @@ class DevicesTest {
 			case BLDevice.DEV_RM_2_PRO_PLUS_2_BL:
 			case BLDevice.DEV_RM_MINI_SHATE:
 	        	double theTemp = ((RMDevice)dev).getTemp();
+	        	System.out.println("RMDevice get temperature: " + theTemp);
 	        	break;
 	        	
 	        }
