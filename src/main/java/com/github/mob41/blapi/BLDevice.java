@@ -211,6 +211,18 @@ public abstract class BLDevice implements Closeable{
 	}
 	
 	/**
+	 * Returns the name of this device
+	 * @return The name of this device in String
+	 */
+	public abstract String getName();
+	
+	/**
+	 * Returns the description of this device
+	 * @return The description of this device in String
+	 */
+	public abstract String getDescription();
+	
+	/**
 	 * Releases the resources of this <code>BLDevice</code>
 	 */
 	@Override
