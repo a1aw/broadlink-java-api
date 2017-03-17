@@ -1,4 +1,7 @@
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.auth;
+
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
 
 public class AuthCmdPayload implements CmdPayload {
 	

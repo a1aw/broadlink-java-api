@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.dis;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
+import com.github.mob41.blapi.pkt.Packet;
 
 /**
  * This class packs a packet to discover Broadlink devices
@@ -40,7 +41,7 @@ import com.github.mob41.blapi.ex.BLApiRuntimeException;
  */
 public class DiscoveryPacket implements Packet {
 	
-	public static final int DEFAULT_SOURCE_PORT = 53; //This source port is from the python-broadlink source code
+	public static final int DEFAULT_SOURCE_PORT = 0; //This source port is from the python-broadlink source code
 	
 	private static final Logger log = LoggerFactory.getLogger(DiscoveryPacket.class);
 	

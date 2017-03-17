@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.auth.AES;
 
 /**
  * This constructs a byte array with the format of a command to the Broadlink device
@@ -82,7 +83,7 @@ public class CmdPacket implements Packet {
 		if (debug)
 			log.debug("Running checksum for headers");
 		
-		short checksum = (short) 0xbeaf;
+		int checksum = 0xbeaf;
 		for (int i = 0; i < payload.length; i++){
 			checksum += payload[i];
 			checksum &= 0xffff;
@@ -110,14 +111,14 @@ public class CmdPacket implements Packet {
 			throw new BLApiRuntimeException("Cannot encrypt payload", e);
 		}
 		
-		for (int b = DEFAULT_BYTES_SIZE, i = 0; b < data.length; b += 0x01, i++){
-			data[b] = payload[i];
+		for (int i = DEFAULT_BYTES_SIZE; i < data.length; i++){
+			data[i] = payload[i - DEFAULT_BYTES_SIZE];
 		}
 		
 		if (debug)
 			log.debug("Running whole packet checksum");
 		
-		checksum = (short) 0xbeaf;
+		checksum = 0xbeaf;
 		for (int i = 0; i < data.length; i++){
 			checksum += data[i];
 			checksum &= 0xffff;

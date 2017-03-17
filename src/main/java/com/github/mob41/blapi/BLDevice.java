@@ -29,22 +29,20 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
-import com.github.mob41.blapi.pkt.AES;
-import com.github.mob41.blapi.pkt.AuthCmdPayload;
-import com.github.mob41.blapi.pkt.AuthPayload;
 import com.github.mob41.blapi.pkt.CmdPacket;
 import com.github.mob41.blapi.pkt.CmdPayload;
-import com.github.mob41.blapi.pkt.DiscoveryPacket;
 import com.github.mob41.blapi.pkt.Packet;
+import com.github.mob41.blapi.pkt.auth.AES;
+import com.github.mob41.blapi.pkt.auth.AuthCmdPayload;
+import com.github.mob41.blapi.pkt.auth.AuthPayload;
+import com.github.mob41.blapi.pkt.dis.DiscoveryPacket;
 
 /**
  * This is the base class of all Broadlink devices (e.g. SP1, RMPro)

@@ -1,4 +1,6 @@
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.auth;
+
+import com.github.mob41.blapi.pkt.Payload;
 
 public class AuthPayload implements Payload {
 
