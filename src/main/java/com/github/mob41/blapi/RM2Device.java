@@ -84,7 +84,20 @@ public class RM2Device extends BLDevice {
 		
 		if (err == 0){
 			AES aes = new AES(getIv(), getKey());
-			byte[] pl = aes.decrypt(data);
+			
+			byte[] encData = BLDevice.subbytes(data, 0x38, data.length);
+			
+			if (encData.length % 16 != 0){
+				
+				byte[] newBytes = new byte[1024];
+				for (int i = 0; i < encData.length; i++){
+					newBytes[i] = encData[i];
+				}
+				encData = newBytes;
+			}
+			
+			byte[] pl = aes.decrypt(encData);
+			
 			return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;
 		} else {
 			System.out.println(Integer.toHexString(err) + " / " + err);

@@ -23,6 +23,8 @@
  *******************************************************************************/
 package com.github.mob41.blapi.pkt.auth;
 
+import java.util.Arrays;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;

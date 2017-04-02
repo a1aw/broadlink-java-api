@@ -31,6 +31,7 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,8 +198,8 @@ public abstract class BLDevice implements Closeable{
 		iv = INITIAL_IV;
 		id = new byte[]{0, 0, 0, 0};
 		
-		//pktCount = new Random().nextInt(0xffff);
-		pktCount = 0;
+		pktCount = new Random().nextInt(0xffff);
+		//pktCount = 0;
 		
 		this.deviceType = deviceType;
 		
@@ -526,7 +527,7 @@ public abstract class BLDevice implements Closeable{
 			sock.close();
 			
 			String host = recePacket.getAddress().getHostAddress();
-			Mac mac = new Mac(reverseBytes(subbytes(receBytes, 0x3a, 0x40)));
+			Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
 			short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
 			
 			if (debug)
