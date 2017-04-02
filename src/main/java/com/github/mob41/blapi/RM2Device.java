@@ -60,9 +60,22 @@ public class RM2Device extends BLDevice {
 	 * @return Result whether the command is successfully sent.
 	 * @throws IOException Problems on sending packet
 	 */
-	public byte[] checkData() throws IOException{
+	public byte[] checkData() throws Exception{
 		CheckDataCmdPayload cmdPayload = new CheckDataCmdPayload();
 		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
+		byte[] data = packet.getData();
+		
+		int err = data[0x22] | (data[0x23] << 8);
+		
+		if (err == 0){
+			AES aes = new AES(getIv(), getKey());
+			byte[] encData = subbytes(data, 0x38, data.length);
+			
+			encData = chgLen(encData, 1024);
+			encData = aes.decrypt(encData);
+			
+			return subbytes(encData, 0x04, encData.length);
+		}
 		
 		return null;
 	}
@@ -98,15 +111,8 @@ public class RM2Device extends BLDevice {
 			AES aes = new AES(getIv(), getKey());
 			
 			byte[] encData = BLDevice.subbytes(data, 0x38, data.length);
-			
-			if (encData.length % 16 != 0){
-				
-				byte[] newBytes = new byte[1024];
-				for (int i = 0; i < encData.length; i++){
-					newBytes[i] = encData[i];
-				}
-				encData = newBytes;
-			}
+
+			encData = chgLen(encData, 1024);
 			
 			byte[] pl = aes.decrypt(encData);
 			

@@ -745,4 +745,12 @@ public abstract class BLDevice implements Closeable{
 		
 		return recepack;
 	}
+	
+	public static byte[] chgLen(byte[] data, int newLen){
+		byte[] newBytes = new byte[newLen];
+		for (int i = 0; i < data.length; i++){
+			newBytes[i] = data[i];
+		}
+		return newBytes;
+	}
 }
