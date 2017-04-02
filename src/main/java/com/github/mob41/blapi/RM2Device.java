@@ -28,6 +28,7 @@ import java.net.DatagramPacket;
 
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
+import com.github.mob41.blapi.pkt.cmd.rm2.CheckDataCmdPayload;
 import com.github.mob41.blapi.pkt.cmd.rm2.EnterLearnCmdPayload;
 import com.github.mob41.blapi.pkt.cmd.rm2.RMTempCmdPayload;
 
@@ -53,6 +54,20 @@ public class RM2Device extends BLDevice {
 	}
 	
 	/**
+	 * Requests the RM2 to return the learned data<br>
+	 * <br>
+	 * The {@link #auth() auth()} method must be ran before these commands
+	 * @return Result whether the command is successfully sent.
+	 * @throws IOException Problems on sending packet
+	 */
+	public byte[] checkData() throws IOException{
+		CheckDataCmdPayload cmdPayload = new CheckDataCmdPayload();
+		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
+		
+		return null;
+	}
+	
+	/**
 	 * Requests the RM2 to enter learning mode.<br>
 	 * <br>
 	 * The {@link #auth() auth()} method must be ran before these commands
@@ -62,8 +77,7 @@ public class RM2Device extends BLDevice {
 	public boolean enterLearning() throws IOException{
 		EnterLearnCmdPayload cmdPayload = new EnterLearnCmdPayload();
 		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
-		
-		printBytes(packet.getData());
+
 		return true;
 	}
 	
@@ -77,8 +91,6 @@ public class RM2Device extends BLDevice {
 	public double getTemp() throws Exception{
 		DatagramPacket packet = sendCmdPkt(new RMTempCmdPayload());
 		byte[] data = packet.getData();
-		
-		printBytes(packet.getData());
 		
 		int err = data[0x22] | (data[0x23] << 8);
 		
