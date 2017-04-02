@@ -26,6 +26,7 @@ package com.github.mob41.blapi.pkt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
@@ -119,13 +120,14 @@ public class CmdPacket implements Packet {
 			log.debug("Headers checksum: " + Integer.toHexString(checksum));
 			log.debug("Creating AES instance with provided key, iv");
 		
-		AES aes = new AES(key, iv);
+		AES aes = new AES(iv, key);
 		
 		try {
 			if (debug)
 				log.debug("Encrypting payload");
 			
 			payload = aes.encrypt(payload);
+			BLDevice.printBytes(payload);
 			
 			if (debug)
 				log.debug("Encrypted. len=" + payload.length);
