@@ -279,7 +279,7 @@ public abstract class BLDevice implements Closeable{
 		for(int i = 0; i < data.length; i++){
 			str += Integer.toHexString(data[i]) + ",";
 		}
-		log.debug(str);
+		log.trace(str);
 	}
 
 	/**
@@ -745,8 +745,8 @@ public abstract class BLDevice implements Closeable{
 		//sock.bind(new InetSocketAddress(ipAddr, sourcePort));
 		
 		byte[] data = pkt.getData();
-		System.out.println("DESTIP: " + destIpAddr.getHostAddress());
-		System.out.println("DESTPORT: " + destPort);
+		log.debug("DESTIP: " + destIpAddr.getHostAddress());
+		log.debug("DESTPORT: " + destPort);
 		DatagramPacket sendpack = new DatagramPacket(data, data.length, destIpAddr, destPort);
 		sock.send(sendpack);
 		
