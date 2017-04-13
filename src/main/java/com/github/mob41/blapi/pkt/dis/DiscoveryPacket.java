@@ -60,16 +60,10 @@ public class DiscoveryPacket implements Packet {
 	}
 
 	public DiscoveryPacket(InetAddress localIpAddr, int sourcePort, Calendar cal, TimeZone tz) {
-		boolean debug = log.isDebugEnabled();
-		
-		if (debug)
-			log.debug("DiscoveryPacket constructor start");
-		
-		if (debug)
-			log.debug("cal=" + cal.getTimeInMillis() + " tz=" + tz.getID());
+		log.debug("DiscoveryPacket constructor start");
+		log.trace("cal=" + cal.getTimeInMillis() + " tz=" + tz.getID());
 		if (localIpAddr == null){
-			if (debug)
-				log.debug("localIpAddr is null. Calling InetAddress.getLocalHost");
+			log.debug("localIpAddr is null. Calling InetAddress.getLocalHost");
 			try {
 				localIpAddr = InetAddress.getLocalHost();
 			} catch (UnknownHostException e) {
@@ -77,15 +71,13 @@ public class DiscoveryPacket implements Packet {
 				throw new BLApiRuntimeException("Could not relieve local IP address", e);
 			}
 		}
-		if (debug)
-			log.debug("localIpAddr= " + localIpAddr.getHostName() + "/" + localIpAddr.getHostAddress());
+		log.debug("localIpAddr= " + localIpAddr.getHostName() + "/" + localIpAddr.getHostAddress());
 		
 		int rawOffset = tz.getRawOffset();
 		int tzOffset = rawOffset / 3600;
 		
-		if (debug)
-			log.debug("Raw offset: " + rawOffset);
-			log.debug("Calculated offset: getRawOffset/1000/-3600=" + tzOffset);
+		log.trace("Raw offset: " + rawOffset);
+		log.trace("Calculated offset: getRawOffset/1000/-3600=" + tzOffset);
 			
 		int min = cal.get(Calendar.MINUTE);
 		int hr = cal.get(Calendar.HOUR);
@@ -95,11 +87,9 @@ public class DiscoveryPacket implements Packet {
 		int dayOfMn = cal.get(Calendar.DAY_OF_MONTH); //Day of month
 		int month = cal.get(Calendar.MONTH) + 1; //Month
 		
-		if (debug){
-			log.debug("min=" + min + " hr=" + hr);
-			log.debug("year=" + year + " dayOfWk=" + dayOfWk);
-			log.debug("dayOfMn=" + dayOfMn + " month=" + month);
-		}
+		log.trace("min=" + min + " hr=" + hr);
+		log.trace("year=" + year + " dayOfWk=" + dayOfWk);
+		log.trace("dayOfMn=" + dayOfMn + " month=" + month);
 		
 		byte[] ipAddrBytes = localIpAddr.getAddress();
 		
@@ -153,14 +143,12 @@ public class DiscoveryPacket implements Packet {
 			checksum += (int)(data[i] & 0xff);
 		}
 
-		if (debug)
-			log.debug("checksum=" + Integer.toHexString(checksum));
+		log.debug("checksum=" + Integer.toHexString(checksum));
 		
 		data[0x20] = (byte) (checksum & 0xff);
 		data[0x21] = (byte) (checksum >> 8);
 		
-		if (debug)
-			log.debug("DiscoveryPacket constructor end");
+		log.debug("DiscoveryPacket constructor end");
 	}
 
 	@Override

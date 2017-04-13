@@ -279,7 +279,7 @@ public abstract class BLDevice implements Closeable{
 		for(int i = 0; i < data.length; i++){
 			str += Integer.toHexString(data[i]) + ",";
 		}
-		log.trace(str);
+		log.trace("printBytes: {}",str);
 	}
 
 	/**
