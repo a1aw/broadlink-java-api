@@ -6,7 +6,7 @@ import org.junit.Test;
 public class DevicesTest {
 
     @Test
-    @Ignore
+
     public void testDevices() throws Exception {
         BLDevice[] devs = BLDevice.discoverDevices(0);
         System.out.println("BLDevice returned " + devs.length + " number of devices.");

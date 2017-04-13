@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
-import com.github.mob41.blapi.pkt.AES;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
+import com.github.mob41.blapi.pkt.auth.AES;
 
 public class A1Device extends BLDevice {
 	private static final Logger log = LoggerFactory.getLogger(A1Device.class);

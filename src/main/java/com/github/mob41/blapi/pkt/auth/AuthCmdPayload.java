@@ -21,19 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.auth;
 
-public class BytePayload implements Payload {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
+
+public class AuthCmdPayload implements CmdPayload {
 	
-	private final byte[] data;
-
-	public BytePayload(byte[] data) {
-		this.data = data;
+	private final AuthPayload authPayload;
+	
+	public AuthCmdPayload(byte[] devId, byte[] devName) {
+		authPayload = new AuthPayload(devId, devName);
 	}
 
 	@Override
-	public byte[] getData() {
-		return data;
+	public byte getCommand() {
+		return 0x65;
+	}
+
+	@Override
+	public Payload getPayload() {
+		return authPayload;
 	}
 
 }

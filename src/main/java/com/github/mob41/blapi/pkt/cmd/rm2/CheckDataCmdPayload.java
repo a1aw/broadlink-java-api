@@ -21,19 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.cmd.rm2;
 
-public class BytePayload implements Payload {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
+
+public final class CheckDataCmdPayload implements CmdPayload {
 	
-	private final byte[] data;
+	private final Payload payload;
+	
+	private final byte[] payloadBytes;
+	
+	public CheckDataCmdPayload(){
+		payloadBytes = new byte[16];
+		payloadBytes[0] = 4;
+		
+		payload = new Payload(){
 
-	public BytePayload(byte[] data) {
-		this.data = data;
+			@Override
+			public byte[] getData() {
+				return payloadBytes;
+			}
+			
+		};
 	}
 
 	@Override
-	public byte[] getData() {
-		return data;
+	public byte getCommand() {
+		return 0x6a;
+	}
+
+	@Override
+	public Payload getPayload() {
+		return payload;
 	}
 
 }

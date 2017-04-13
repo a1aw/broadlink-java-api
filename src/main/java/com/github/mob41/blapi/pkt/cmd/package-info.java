@@ -21,19 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
-
-public class BytePayload implements Payload {
-	
-	private final byte[] data;
-
-	public BytePayload(byte[] data) {
-		this.data = data;
-	}
-
-	@Override
-	public byte[] getData() {
-		return data;
-	}
-
-}
+/**
+ * Command packets implementations
+ * @author Anthony
+ *
+ */
+package com.github.mob41.blapi.pkt.cmd;

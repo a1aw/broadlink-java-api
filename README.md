@@ -1,4 +1,4 @@
-# broadlink-java-api
+# broadlink-java-api [![Build Status](https://travis-ci.org/mob41/broadlink-java-api.svg?branch=master)](https://travis-ci.org/mob41/broadlink-java-api)
 A clean Java API to Broadlink devices!
 
 This project is still in very early development stage! Many things not implemented though:

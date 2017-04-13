@@ -21,19 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.auth;
 
-public class BytePayload implements Payload {
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+public class AES {
 	
-	private final byte[] data;
-
-	public BytePayload(byte[] data) {
-		this.data = data;
+	private static final String CIPHER_ALGO = "AES/CBC/NoPadding";
+	
+	private static final String KEY_ALGO = "AES";
+	
+	private final byte[] key;
+	
+	private final byte[] iv;
+	
+	public AES(byte[] iv, byte[] key){
+		this.key = key;
+		this.iv = iv;
 	}
+    
+    public byte[] encrypt(byte[] data) throws Exception {
+        Cipher c = Cipher.getInstance(CIPHER_ALGO);
+        c.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, KEY_ALGO), new IvParameterSpec(iv));
+        return c.doFinal(data);
+    }
 
-	@Override
-	public byte[] getData() {
-		return data;
-	}
-
+    public byte[] decrypt(byte[] data) throws Exception {
+    	Cipher c = Cipher.getInstance(CIPHER_ALGO);
+        c.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, KEY_ALGO), new IvParameterSpec(iv));
+        return c.doFinal(data);
+    }
+	
 }

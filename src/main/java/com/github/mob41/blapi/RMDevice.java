@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
-import com.github.mob41.blapi.pkt.AES;
 import com.github.mob41.blapi.pkt.CmdPayload;
-import com.github.mob41.blapi.pkt.EnterLearnCmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
+import com.github.mob41.blapi.pkt.auth.AES;
+import com.github.mob41.blapi.pkt.cmd.rm2.EnterLearnCmdPayload;
 
 public class RMDevice extends BLDevice {
 	private static final Logger log = LoggerFactory.getLogger(RMDevice.class);

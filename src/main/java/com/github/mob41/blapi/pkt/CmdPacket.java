@@ -1,10 +1,35 @@
+/*******************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2017 Anthony Law
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *******************************************************************************/
 package com.github.mob41.blapi.pkt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.auth.AES;
 
 /**
  * This constructs a byte array with the format of a command to the Broadlink device
@@ -82,7 +107,7 @@ public class CmdPacket implements Packet {
 		if (debug)
 			log.debug("Running checksum for headers");
 		
-		short checksum = (short) 0xbeaf;
+		int checksum = 0xbeaf;
 		for (int i = 0; i < payload.length; i++){
 			checksum += payload[i];
 			checksum &= 0xffff;
@@ -95,13 +120,14 @@ public class CmdPacket implements Packet {
 			log.debug("Headers checksum: " + Integer.toHexString(checksum));
 			log.debug("Creating AES instance with provided key, iv");
 		
-		AES aes = new AES(key, iv);
+		AES aes = new AES(iv, key);
 		
 		try {
 			if (debug)
 				log.debug("Encrypting payload");
 			
 			payload = aes.encrypt(payload);
+			BLDevice.printBytes(payload);
 			
 			if (debug)
 				log.debug("Encrypted. len=" + payload.length);
@@ -110,14 +136,14 @@ public class CmdPacket implements Packet {
 			throw new BLApiRuntimeException("Cannot encrypt payload", e);
 		}
 		
-		for (int b = DEFAULT_BYTES_SIZE, i = 0; b < data.length; b += 0x01, i++){
-			data[b] = payload[i];
+		for (int i = DEFAULT_BYTES_SIZE; i < data.length; i++){
+			data[i] = payload[i - DEFAULT_BYTES_SIZE];
 		}
 		
 		if (debug)
 			log.debug("Running whole packet checksum");
 		
-		checksum = (short) 0xbeaf;
+		checksum = 0xbeaf;
 		for (int i = 0; i < data.length; i++){
 			checksum += data[i];
 			checksum &= 0xffff;

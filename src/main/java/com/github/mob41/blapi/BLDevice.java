@@ -31,6 +31,7 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -38,13 +39,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.mob41.blapi.mac.Mac;
-import com.github.mob41.blapi.pkt.AES;
-import com.github.mob41.blapi.pkt.AuthCmdPayload;
-import com.github.mob41.blapi.pkt.AuthPayload;
 import com.github.mob41.blapi.pkt.CmdPacket;
 import com.github.mob41.blapi.pkt.CmdPayload;
-import com.github.mob41.blapi.pkt.DiscoveryPacket;
 import com.github.mob41.blapi.pkt.Packet;
+import com.github.mob41.blapi.pkt.auth.AES;
+import com.github.mob41.blapi.pkt.auth.AuthCmdPayload;
+import com.github.mob41.blapi.pkt.auth.AuthPayload;
+import com.github.mob41.blapi.pkt.dis.DiscoveryPacket;
 
 /**
  * This is the base class of all Broadlink devices (e.g. SP1, RMPro)
@@ -53,8 +54,14 @@ import com.github.mob41.blapi.pkt.Packet;
  */
 public abstract class BLDevice implements Closeable{
 	
+	/**
+	 * The specific logger for this class
+	 */
 	private static final Logger log = LoggerFactory.getLogger(BLDevice.class);
 	
+	/**
+	 * Initial key for encryption
+	 */
 	public static final byte[] INITIAL_KEY = {
 			0x09, 0x76, 0x28, 0x34,
 			0x3f, (byte) 0xe9, (byte) 0x9e, 0x23,
@@ -62,12 +69,18 @@ public abstract class BLDevice implements Closeable{
 			(byte) 0xac, (byte) 0xcf, (byte) 0x8b, 0x02
 	}; //16-byte
 	
+	/**
+	 * Initial iv for encryption
+	 */
 	public static final byte[] INITIAL_IV = {
 			0x56, 0x2e, 0x17, (byte) 0x99,
 			0x6d, 0x09, 0x3d, 0x28,
 			(byte) 0xdd, (byte) 0xb3, (byte) 0xba, 0x69,
 			0x5a, 0x2e, 0x6f, 0x58
 	}; //16-short
+	
+
+	//Devices type HEX
 	
 	public static final short DEV_SP1 = 0x0;
 	
@@ -115,34 +128,83 @@ public abstract class BLDevice implements Closeable{
 	
 	public static final short DEV_MP1 = 0x4EB5;
 	
+	/**
+	 * The destination port for discovery broadcasting (from __init__.py)
+	 */
 	public static final int DISCOVERY_DEST_PORT = 80;
 	
+	/**
+	 * The discovery receive buffer size (from __init__.py)
+	 */
 	public static final int DISCOVERY_RECEIVE_BUFFER_SIZE = 0x40; //64-bytes
 	
+	/**
+	 * Default discovery timeout (10 seconds)
+	 */
 	public static final int DEFAULT_TIMEOUT = 10000; //10 seconds (10000 ms)
 	
-	private int pktCount = 0;
+	/**
+	 * Packet count that is sent by this instance of BLDevice. 
+	 * This is for {@link #sendCmdPkt(CmdPayload) sendCmdPkt} method.
+	 */
+	private int pktCount;
 	
+	/**
+	 * Encryption key. Initialization value is {@link #INITIAL_KEY INITIAL_KEY}. 
+	 * This is for {@link #sendCmdPkt(CmdPayload) sendCmdPkt} method.
+	 */
 	private byte[] key;
 	
+	/**
+	 * Encryption iv. Initialization value is {@link #INITIAL_IV INITIAL_IV}. 
+	 * This is for {@link #sendCmdPkt(CmdPayload) sendCmdPkt} method.
+	 */
 	private byte[] iv;
 	
+	/**
+	 * Device/Client ID. Initialization value is <code>{0,0,0,0}</code>.
+	 * And it is changed after the {@link #auth() auth} method, that
+	 * Broadlink devices will provide a id for this client/device. 
+	 * This is for {@link #sendCmdPkt(CmdPayload) sendCmdPkt} method.
+	 */
 	private byte[] id;
 	
+	/**
+	 * Device type received from discovering devices, or those <code>BLDevice.DEV_*</code> constants
+	 */
 	private final short deviceType;
 	
 	private String deviceDescription;
 	
+	/**
+	 * Specific datagram socket for this instance, to reuse address.
+	 */
 	private DatagramSocket sock;
 	
+	/**
+	 * Target device host
+	 */
 	private String host;
 	
+	/**
+	 * Target device MAC, using {@link com.github.mob41.blapi.mac.Mac} implementation to handle MAC addresses
+	 */
 	private Mac mac;
 
+	/**
+	 * Constructs a <code>BLDevice</code>, with a device type (constants), hostname and MAC address
+	 * @param deviceType Device type constants (<code>BLDevice.DEV_*</code>)
+	 * @param host Hostname of target Broadlink device
+	 * @param mac MAC address of target Broadlink device
+	 * @throws IOException Problems on constructing a datagram socket
+	 */
 	protected BLDevice(short deviceType, String host, Mac mac) throws IOException{
 		key = INITIAL_KEY;
 		iv = INITIAL_IV;
 		id = new byte[]{0, 0, 0, 0};
+		
+		pktCount = new Random().nextInt(0xffff);
+		//pktCount = 0;
 		
 		this.deviceType = deviceType;
 				
@@ -154,6 +216,9 @@ public abstract class BLDevice implements Closeable{
 		sock.setBroadcast(true);
 	}
 	
+	/**
+	 * Releases the resources of this <code>BLDevice</code>
+	 */
 	@Override
 	public void close(){
 		sock.close();
@@ -183,10 +248,18 @@ public abstract class BLDevice implements Closeable{
 		return mac;
 	}
 	
+	/**
+	 * Returns the encryption IV of this client
+	 * @return a byte array containing the IV
+	 */
 	public byte[] getIv(){
 		return iv;
 	}
 	
+	/**
+	 * Returns the encryption key of this client
+	 * @return a byte array containing the key
+	 */
 	public byte[] getKey(){
 		return key;
 	}
@@ -197,6 +270,16 @@ public abstract class BLDevice implements Closeable{
 
 	public void setDeviceDescription(String deviceDescription) {
 		this.deviceDescription = deviceDescription;
+	}
+
+	//TODO: remove this
+	//Development purpose
+	public static void printBytes(byte[] data){
+		String str = "";
+		for(int i = 0; i < data.length; i++){
+			str += Integer.toHexString(data[i]) + ",";
+		}
+		log.debug(str);
 	}
 
 	/**
@@ -217,6 +300,8 @@ public abstract class BLDevice implements Closeable{
 		if (debug)
 			log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand()) + " len=" + sendPayload.getPayload().getData().length);
 		
+		printBytes(sendPayload.getPayload().getData());
+		
 		DatagramPacket sendPack = sendCmdPkt(10000, 88, sendPayload);
 		
 		if (debug)
@@ -224,7 +309,7 @@ public abstract class BLDevice implements Closeable{
 		
 		byte[] data = sendPack.getData();
 		
-		//printBytes(data);
+		printBytes(data);
 		
 		if (debug)
 			log.debug("Getting encrypted data from 0x38 to the end");
@@ -292,23 +377,79 @@ public abstract class BLDevice implements Closeable{
 		return true;
 	}
 	
+	/**
+	 * Sends a command packet from localhost to Broadlink device, with buffer size 1024 bytes, 10 seconds timeout<br>
+	 * <br>
+	 * Before any commands to be sent to the device, {@link #auth() auth} must be ran
+	 * first in order to authenticate with the device and gain a device ID, encryption
+	 * key and IV.
+	 * @param cmdPayload Command data to be sent
+	 * @return {@link DatagramPacket} containing the byte data and sender host information.
+	 * @throws IOException Problems when sending the packet
+	 */
 	public DatagramPacket sendCmdPkt(CmdPayload cmdPayload) throws IOException{
 		return sendCmdPkt(10000, cmdPayload);
 	}
 	
+	/**
+	 * Sends a command packet from localhost to Broadlink device, with default buffer size 1024 bytes<br>
+	 * <br>
+	 * Before any commands to be sent to the device, {@link #auth() auth} must be ran
+	 * first in order to authenticate with the device and gain a device ID, encryption
+	 * key and IV.
+	 * @param timeout Socket read timeout
+	 * @param cmdPayload Command data to be sent
+	 * @return {@link DatagramPacket} containing the byte data and sender host information.
+	 * @throws IOException Problems when sending the packet
+	 */
 	public DatagramPacket sendCmdPkt(int timeout, CmdPayload cmdPayload) throws IOException{
-		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, 1024, cmdPayload);
+		return sendCmdPkt(InetAddress.getLocalHost(), 0, timeout, 1024, cmdPayload);
 	}
 	
+	/**
+	 * Sends a command packet from localhost to Broadlink device<br>
+	 * <br>
+	 * Before any commands to be sent to the device, {@link #auth() auth} must be ran
+	 * first in order to authenticate with the device and gain a device ID, encryption
+	 * key and IV.
+	 * @param timeout Socket read timeout
+	 * @param bufSize Receive datagram buffer size
+	 * @param cmdPayload Command data to be sent
+	 * @return {@link DatagramPacket} containing the byte data and sender host information.
+	 * @throws IOException Problems when sending the packet
+	 */
 	public DatagramPacket sendCmdPkt(int timeout, int bufSize, CmdPayload cmdPayload) throws IOException{
-		return sendCmdPkt(InetAddress.getLocalHost(), 53, timeout, bufSize, cmdPayload);
+		return sendCmdPkt(InetAddress.getLocalHost(), 0, timeout, bufSize, cmdPayload);
 	}
 	
+	/**
+	 * Binds to a specific IP address and sends a command packet to Broadlink device<br>
+	 * <br>
+	 * Before any commands to be sent to the device, {@link #auth() auth} must be ran
+	 * first in order to authenticate with the device and gain a device ID, encryption
+	 * key and IV.
+	 * @param sourceIpAddr Bind the socket to this IP address
+	 * @param sourcePort Bind the socket to this port
+	 * @param timeout Socket read timeout
+	 * @param bufSize Receive datagram buffer size
+	 * @param cmdPayload Command data to be sent
+	 * @return {@link DatagramPacket} containing the byte data and sender host information.
+	 * @throws IOException Problems when sending the packet
+	 */
 	public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize, CmdPayload cmdPayload) throws IOException{
 		CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
+		printBytes(cmdPkt.getData());
 		return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, bufSize);
 	}
 	
+	/**
+	 * Creates a Broadlink device client
+	 * @param deviceType Device type constant (<code>BLDevice.DEV_*</code>)
+	 * @param host Target Broadlink device hostname
+	 * @param mac Target Broadlink device MAC address
+	 * @return A BLDevice client
+	 * @throws IOException Problems when constucting a datagram socket
+	 */
 	public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException{
 		switch (deviceType){
 		case DEV_SP1:
@@ -342,15 +483,34 @@ public abstract class BLDevice implements Closeable{
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Discover Broadlink devices in the local network, with {@link #DEFAULT_TIMEOUT default timeout}
+	 * @return An array of <code>BLDevice</code> in the network
+	 * @throws IOException Problems when discovering
+	 */
 	public static BLDevice[] discoverDevices() throws IOException{
 		return discoverDevices(DEFAULT_TIMEOUT);
 	}
-	
+
+	/**
+	 * Discover Broadlink devices in the local network
+	 * @param timeout Socket read timeout
+	 * @return An array of <code>BLDevice</code> in the network
+	 * @throws IOException Problems when discovering
+	 */
 	public static BLDevice[] discoverDevices(int timeout) throws IOException{
-		return discoverDevices(InetAddress.getLocalHost(), DiscoveryPacket.DEFAULT_SOURCE_PORT, timeout);
+		return discoverDevices(InetAddress.getLocalHost(), 0, timeout);
 	}
 	
+	/**
+	 * Discover Broadlink devices in the network, binded with a specific IP address
+	 * @param sourceIpAddr The IP address to be binded
+	 * @param sourcePort The port to be binded
+	 * @param timeout Socket read timeout
+	 * @return An array of <code>BLDevice</code> in the network
+	 * @throws IOException Problems when discovering
+	 */
 	public static BLDevice[] discoverDevices(InetAddress sourceIpAddr, int sourcePort, int timeout) throws IOException{
 		boolean debug = log.isDebugEnabled();
 		
@@ -440,7 +600,7 @@ public abstract class BLDevice implements Closeable{
 					log.debug("Received datagram");
 				
 				String host = recePacket.getAddress().getHostAddress();
-				Mac mac = new Mac(subbytes(receBytes, 0x3a, 0x40));
+				Mac mac = new Mac(reverseBytes(subbytes(receBytes, 0x3a, 0x40)));
 				short deviceType = (short) (receBytes[0x34] | receBytes[0x35] << 8);
 				
 				if (debug)
@@ -475,6 +635,27 @@ public abstract class BLDevice implements Closeable{
 		return out;
 	}
 	
+	/**
+	 * Misc: Reverse the byte array
+	 * @param data Original data
+	 * @return Result byte array
+	 */
+	public static byte[] reverseBytes(byte[] data){
+		byte[] out = new byte[data.length];
+		
+		for (int i = 0; i < out.length; i++){
+			out[i] = data[data.length - 1 - i];
+		}
+		
+		return out;
+	}
+	
+	/**
+	 * Misc: Pull bytes out from an array until a NULL (0) is detected
+	 * @param data Original data
+	 * @param offset Starting offset
+	 * @return Result byte array
+	 */
 	public static byte[] subbytesTillNull(byte[] data, int offset){
 		List<Byte> bytes = new ArrayList<Byte>(data.length);
 		
@@ -590,5 +771,13 @@ public abstract class BLDevice implements Closeable{
 		}
 		
 		return recepack;
+	}
+	
+	public static byte[] chgLen(byte[] data, int newLen){
+		byte[] newBytes = new byte[newLen];
+		for (int i = 0; i < data.length; i++){
+			newBytes[i] = data[i];
+		}
+		return newBytes;
 	}
 }

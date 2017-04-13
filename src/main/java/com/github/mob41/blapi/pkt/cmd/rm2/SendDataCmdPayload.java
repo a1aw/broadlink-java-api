@@ -21,19 +21,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.cmd.rm2;
 
-public class BytePayload implements Payload {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
+
+public final class SendDataCmdPayload implements CmdPayload {
 	
-	private final byte[] data;
+	private final Payload payload;
+	
+	private final byte[] payloadBytes;
+	
+	private final byte[] dataBytes;
+	
+	public SendDataCmdPayload(byte[] irRfCodeData){
+		this.dataBytes = irRfCodeData;
+		
+		payloadBytes = new byte[4 + dataBytes.length];
+		payloadBytes[0] = 2;
+		
+		for (int i = 4; i < dataBytes.length; i++){
+			payloadBytes[i] = dataBytes[i - 4];
+		}
+		
+		payload = new Payload(){
 
-	public BytePayload(byte[] data) {
-		this.data = data;
+			@Override
+			public byte[] getData() {
+				return payloadBytes;
+			}
+			
+		};
+	}
+	
+	/**
+	 * Returns the IR/RF code data to be sent
+	 * @return IR/RF code data
+	 */
+	public byte[] getData(){
+		return dataBytes;
 	}
 
 	@Override
-	public byte[] getData() {
-		return data;
+	public byte getCommand() {
+		return 0x6a;
+	}
+
+	@Override
+	public Payload getPayload() {
+		return payload;
 	}
 
 }

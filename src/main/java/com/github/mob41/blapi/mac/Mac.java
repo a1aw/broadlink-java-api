@@ -138,7 +138,6 @@ public class Mac {
 				str += ':';
 			}
 		}
-		
 		return str;
 	}
 
