@@ -3,7 +3,7 @@ package com.github.mob41.blapi;
 import org.junit.Ignore;
 import org.junit.Test;
 
-class DevicesTest {
+public class DevicesTest {
 
     @Test
     @Ignore
