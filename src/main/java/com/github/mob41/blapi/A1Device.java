@@ -130,13 +130,14 @@ public class A1Device extends BLDevice {
 		});
 		byte[] data = packet.getData();
 		
-		log.debug("checkSensors Packet received bytes: " + DatatypeConverter.printHexBinary(data));
+		log.debug("checkSensors Packet received bytes: {}", DatatypeConverter.printHexBinary(data));
 		
 		int err = data[0x22] | (data[0x23] << 8);
 		
 		if (err == 0) {
 			AES aes = new AES(getIv(), getKey());
 			byte[] pl = aes.decrypt(data);
+			log.debug("checkSensors Packet received bytes (decrypted): {}", DatatypeConverter.printHexBinary(pl));
 			EnvironmentalSensorRaw sensorData = new EnvironmentalSensorRaw();
 			if(pl[0x4] >= 48 && pl[0x4] <= 57) {
 				String decodeValue1;
