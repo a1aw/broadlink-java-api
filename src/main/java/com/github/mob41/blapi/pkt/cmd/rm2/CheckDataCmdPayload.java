@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MIT License
  *
- * Copyright (c) 2017 Anthony Law
+ * Copyright (c) 2016, 2017 Anthony Law
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ * Contributors:
+ *     - Anthony Law (mob41) - Initial API Implementation
+ *     - bwssytems
+ *     - Christian Fischer (computerlyrik)
  *******************************************************************************/
 package com.github.mob41.blapi.pkt.cmd.rm2;
 
@@ -27,33 +32,33 @@ import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public final class CheckDataCmdPayload implements CmdPayload {
-	
-	private final Payload payload;
-	
-	private final byte[] payloadBytes;
-	
-	public CheckDataCmdPayload(){
-		payloadBytes = new byte[16];
-		payloadBytes[0] = 4;
-		
-		payload = new Payload(){
 
-			@Override
-			public byte[] getData() {
-				return payloadBytes;
-			}
-			
-		};
-	}
+    private final Payload payload;
 
-	@Override
-	public byte getCommand() {
-		return 0x6a;
-	}
+    private final byte[] payloadBytes;
 
-	@Override
-	public Payload getPayload() {
-		return payload;
-	}
+    public CheckDataCmdPayload(){
+        payloadBytes = new byte[16];
+        payloadBytes[0] = 4;
+
+        payload = new Payload(){
+
+            @Override
+            public byte[] getData() {
+                return payloadBytes;
+            }
+
+        };
+    }
+
+    @Override
+    public byte getCommand() {
+        return 0x6a;
+    }
+
+    @Override
+    public Payload getPayload() {
+        return payload;
+    }
 
 }

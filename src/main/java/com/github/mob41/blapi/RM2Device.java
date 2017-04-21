@@ -38,89 +38,89 @@ import com.github.mob41.blapi.pkt.cmd.rm2.RMTempCmdPayload;
  *
  */
 public class RM2Device extends BLDevice {
-		
-	private static final String DESC = "RM2";
 
-	/**
-	 * Creates a RM2Device client instance
-	 * @param host The target Broadlink hostname
-	 * @param mac The target Broadlink MAC address
-	 * @throws IOException Problems on constructing socket
-	 */
-	public RM2Device(String host, Mac mac) throws IOException {
-		super(BLDevice.DEV_RM_2, host, mac);
-		setDeviceDescription(DESC);
-	}
-	
-	/**
-	 * Requests the RM2 to return the learned data<br>
-	 * <br>
-	 * The {@link #auth() auth()} method must be ran before these commands
-	 * @return Result whether the command is successfully sent.
-	 * @throws IOException Problems on sending packet
-	 */
-	public byte[] checkData() throws Exception{
-		CheckDataCmdPayload cmdPayload = new CheckDataCmdPayload();
-		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
-		byte[] data = packet.getData();
-		
-		int err = data[0x22] | (data[0x23] << 8);
-		
-		if (err == 0){
-			AES aes = new AES(getIv(), getKey());
-			byte[] encData = subbytes(data, 0x38, data.length);
-			
-			encData = chgLen(encData, 1024);
-			encData = aes.decrypt(encData);
-			
-			return subbytes(encData, 0x04, encData.length);
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Requests the RM2 to enter learning mode.<br>
-	 * <br>
-	 * The {@link #auth() auth()} method must be ran before these commands
-	 * @return Result whether the command is successfully sent.
-	 * @throws IOException Problems on sending packet
-	 */
-	public boolean enterLearning() throws IOException{
-		EnterLearnCmdPayload cmdPayload = new EnterLearnCmdPayload();
-		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
+    private static final String DESC = "RM2";
 
-		return true;
-	}
-	
-	/**
-	 * Requests the RM2 to return the room temperature<br>
-	 * <br>
-	 * The {@link #auth() auth()} method must be ran before these commands
-	 * @return The room temperature in a floating number
-	 * @throws IOException Problems on sending packet
-	 */
-	public double getTemp() throws Exception{
-		DatagramPacket packet = sendCmdPkt(new RMTempCmdPayload());
-		byte[] data = packet.getData();
-		
-		int err = data[0x22] | (data[0x23] << 8);
-		
-		if (err == 0){
-			AES aes = new AES(getIv(), getKey());
-			
-			byte[] encData = BLDevice.subbytes(data, 0x38, data.length);
+    /**
+     * Creates a RM2Device client instance
+     * @param host The target Broadlink hostname
+     * @param mac The target Broadlink MAC address
+     * @throws IOException Problems on constructing socket
+     */
+    public RM2Device(String host, Mac mac) throws IOException {
+        super(BLDevice.DEV_RM_2, host, mac);
+        setDeviceDescription(DESC);
+    }
 
-			encData = chgLen(encData, 1024);
-			
-			byte[] pl = aes.decrypt(encData);
-			
-			return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;
-		} else {
-			System.out.println(Integer.toHexString(err) + " / " + err);
-		}
-		
-		return -1;
-	}
+    /**
+     * Requests the RM2 to return the learned data<br>
+     * <br>
+     * The {@link #auth() auth()} method must be ran before these commands
+     * @return Result whether the command is successfully sent.
+     * @throws IOException Problems on sending packet
+     */
+    public byte[] checkData() throws Exception{
+        CheckDataCmdPayload cmdPayload = new CheckDataCmdPayload();
+        DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
+        byte[] data = packet.getData();
+
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err == 0){
+            AES aes = new AES(getIv(), getKey());
+            byte[] encData = subbytes(data, 0x38, data.length);
+
+            encData = chgLen(encData, 1024);
+            encData = aes.decrypt(encData);
+
+            return subbytes(encData, 0x04, encData.length);
+        }
+
+        return null;
+    }
+
+    /**
+     * Requests the RM2 to enter learning mode.<br>
+     * <br>
+     * The {@link #auth() auth()} method must be ran before these commands
+     * @return Result whether the command is successfully sent.
+     * @throws IOException Problems on sending packet
+     */
+    public boolean enterLearning() throws IOException{
+        EnterLearnCmdPayload cmdPayload = new EnterLearnCmdPayload();
+        DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
+
+        return true;
+    }
+
+    /**
+     * Requests the RM2 to return the room temperature<br>
+     * <br>
+     * The {@link #auth() auth()} method must be ran before these commands
+     * @return The room temperature in a floating number
+     * @throws IOException Problems on sending packet
+     */
+    public double getTemp() throws Exception{
+        DatagramPacket packet = sendCmdPkt(new RMTempCmdPayload());
+        byte[] data = packet.getData();
+
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err == 0){
+            AES aes = new AES(getIv(), getKey());
+
+            byte[] encData = BLDevice.subbytes(data, 0x38, data.length);
+
+            encData = chgLen(encData, 1024);
+
+            byte[] pl = aes.decrypt(encData);
+
+            return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;
+        } else {
+            System.out.println(Integer.toHexString(err) + " / " + err);
+        }
+
+        return -1;
+    }
 
 }

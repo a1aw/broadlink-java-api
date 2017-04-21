@@ -27,21 +27,21 @@ import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class AuthCmdPayload implements CmdPayload {
-	
-	private final AuthPayload authPayload;
-	
-	public AuthCmdPayload(byte[] devId, byte[] devName) {
-		authPayload = new AuthPayload(devId, devName);
-	}
 
-	@Override
-	public byte getCommand() {
-		return 0x65;
-	}
+    private final AuthPayload authPayload;
 
-	@Override
-	public Payload getPayload() {
-		return authPayload;
-	}
+    public AuthCmdPayload(byte[] devId, byte[] devName) {
+        authPayload = new AuthPayload(devId, devName);
+    }
+
+    @Override
+    public byte getCommand() {
+        return 0x65;
+    }
+
+    @Override
+    public Payload getPayload() {
+        return authPayload;
+    }
 
 }
