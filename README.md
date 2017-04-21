@@ -1,7 +1,7 @@
 # broadlink-java-api [![Build Status](https://travis-ci.org/mob41/broadlink-java-api.svg?branch=master)](https://travis-ci.org/mob41/broadlink-java-api)
 A clean Java API to Broadlink devices!
 
-This is a Java version of the [python-broadlink](https://github.com/mjg59/python-broadlink) library.
+This is a Java version of [mjg59](https://github.com/mjg59)'s [python-broadlink](https://github.com/mjg59/python-broadlink) library.
 
 ## Adding this API
 
@@ -46,34 +46,35 @@ This is a Java version of the [python-broadlink](https://github.com/mjg59/python
 
 2. Creating a Broadlink device to connect
 
-    i. You can discover it.
+  i. You can discover it.
     
-        ```java
-        BLDevice[] devs = BLDevice.discoverDevices(); //Default with 10000 ms (10 sec) timeout, search for multiple devices
-        
-        //BLDevice[] devs = BLDevice.discoverDevices(0); //No timeout will block the thread and search for one device only
-        //BLDevice[] devs = BLDevice.discoverDevices(5000); //With 5000 ms (5 sec) timeout
-        
-        //The BLDevice[] array stores the found devices in the local network
-        
-        System.out.println("Number of devices: " + devs.length);
-        
-        BLDevice blDevice = null;
-        for (BLDevice dev : devs){
-        	System.out.println("Type: " + Integer.toHexString(dev.getDeviceType()) + " Host: " + dev.getHost() + " Mac: " + dev.getMac());
-        }
-        
-        //BLDevice dev = devs[0]
-        
-        ```
-        
-    ii. Create a <code>RM2Device</code> or another <code>BLDevice</code> child according to your device type
+    ```java
+    BLDevice[] devs = BLDevice.discoverDevices(); //Default with 10000 ms (10 sec) timeout, search for multiple devices
     
-        ```java
-        BLDevice dev = new RM2Device("192.168.1.123", new Mac("01:12:23:34:43:320"));
-        //~do stuff
-        //dev.auth();
-        ```
+    //BLDevice[] devs = BLDevice.discoverDevices(0); //No timeout will block the thread and search for one device only
+    //BLDevice[] devs = BLDevice.discoverDevices(5000); //With 5000 ms (5 sec) timeout
+    
+    //The BLDevice[] array stores the found devices in the local network
+    
+    System.out.println("Number of devices: " + devs.length);
+   
+    BLDevice blDevice = null;
+    for (BLDevice dev : devs){
+        System.out.println("Type: " + Integer.toHexString(dev.getDeviceType()) + " Host: " + dev.getHost() + " Mac: " + dev.getMac());
+    }
+    
+    //BLDevice dev = devs[0]
+    ```
+        
+  ii. Create a <code>RM2Device</code> or another <code>BLDevice</code> child according to your device type
+    
+    ```java
+    BLDevice dev = new RM2Device("192.168.1.123", new Mac("01:12:23:34:43:320"));
+    //~do stuff
+    //dev.auth();
+    ```
+   
+   
 3. Before any commands like ```getTemp()``` and ```enterLearning()```, ```BLDevice.auth()``` must be ran to connect and authenticate with the Broadlink device.
 
     ```java
