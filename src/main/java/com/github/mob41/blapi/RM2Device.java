@@ -1,7 +1,7 @@
 /*******************************************************************************
  * MIT License
  *
- * Copyright (c) 2017 Anthony Law
+ * Copyright (c) 2017 Anthony Law, Christian Fischer (computerlyrik)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,9 +38,7 @@ import com.github.mob41.blapi.pkt.cmd.rm2.RMTempCmdPayload;
  *
  */
 public class RM2Device extends BLDevice {
-	
-	private static final String NAME = "RM2";
-	
+		
 	private static final String DESC = "RM2";
 
 	/**
@@ -51,6 +49,7 @@ public class RM2Device extends BLDevice {
 	 */
 	public RM2Device(String host, Mac mac) throws IOException {
 		super(BLDevice.DEV_RM_2, host, mac);
+		setDeviceDescription(DESC);
 	}
 	
 	/**
@@ -122,16 +121,6 @@ public class RM2Device extends BLDevice {
 		}
 		
 		return -1;
-	}
-
-	@Override
-	public String getName() {
-		return NAME;
-	}
-
-	@Override
-	public String getDescription() {
-		return DESC;
 	}
 
 }

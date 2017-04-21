@@ -27,7 +27,7 @@
 
   <groupId>com.github.mob41.blapi</groupId>
   <artifactId>broadlink-java-api</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>broadlink-java-api</name>
@@ -79,7 +79,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -87,6 +87,12 @@
     	<artifactId>slf4j-api</artifactId>
     	<version>1.7.22</version>
     </dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>1.7.22</version>
+		<scope>test</scope>
+	</dependency>
   </dependencies>
   
   <!--

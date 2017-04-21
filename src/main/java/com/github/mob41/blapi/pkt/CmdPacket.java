@@ -57,20 +57,17 @@ public class CmdPacket implements Packet {
 	public CmdPacket(Mac targetMac, int count,
 			byte[] id, byte[] iv, byte[] key,
 			CmdPayload cmdPayload) {
-		boolean debug = log.isDebugEnabled();
 		
 		byte cmd = cmdPayload.getCommand();
 		byte[] payload = cmdPayload.getPayload().getData();
 		
-		if (debug)
-			log.debug("Constructor CmdPacket starts");
-			log.debug("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
+		log.debug("Constructor CmdPacket starts");
+		log.trace("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
 		
 		count = (count + 1) & 0xffff; //increased by the sendPkt()
 		
-		if (debug)
-			log.debug("New count: " + count + " (added by 1)");
-			log.debug("Creating byte array with data");
+		log.trace("New count: " + count + " (added by 1)");
+		log.trace("Creating byte array with data");
 		
 		data = new byte[DEFAULT_BYTES_SIZE + payload.length];
 		
@@ -104,8 +101,7 @@ public class CmdPacket implements Packet {
 		data[0x32] = id[2];
 		data[0x33] = id[3];
 		
-		if (debug)
-			log.debug("Running checksum for headers");
+		log.debug("Running checksum for headers");
 		
 		int checksum = 0xbeaf;
 		for (int i = 0; i < payload.length; i++){
@@ -116,21 +112,18 @@ public class CmdPacket implements Packet {
 		data[0x34] = (byte) (checksum & 0xff);
 		data[0x35] = (byte) (checksum >> 8);
 		
-		if (debug)
-			log.debug("Headers checksum: " + Integer.toHexString(checksum));
-			log.debug("Creating AES instance with provided key, iv");
+		log.trace("Headers checksum: " + Integer.toHexString(checksum));
+		log.trace("Creating AES instance with provided key {}, iv {}", key, iv);
 		
 		AES aes = new AES(iv, key);
 		
 		try {
-			if (debug)
-				log.debug("Encrypting payload");
+			log.debug("Encrypting payload");
 			
 			payload = aes.encrypt(payload);
 			BLDevice.printBytes(payload);
 			
-			if (debug)
-				log.debug("Encrypted. len=" + payload.length);
+			log.trace("Encrypted. len=" + payload.length);
 		} catch (Exception e) {
 			log.error("Cannot encrypt payload! Aborting", e);
 			throw new BLApiRuntimeException("Cannot encrypt payload", e);
@@ -140,8 +133,7 @@ public class CmdPacket implements Packet {
 			data[i] = payload[i - DEFAULT_BYTES_SIZE];
 		}
 		
-		if (debug)
-			log.debug("Running whole packet checksum");
+		log.debug("Running whole packet checksum");
 		
 		checksum = 0xbeaf;
 		for (int i = 0; i < data.length; i++){
@@ -149,14 +141,12 @@ public class CmdPacket implements Packet {
 			checksum &= 0xffff;
 		}
 		
-		if (debug)
-			log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
+		log.trace("Whole packet checksum: " + Integer.toHexString(checksum));
 		
 		data[0x20] = (byte) (checksum & 0xff);
 		data[0x21] = (byte) (checksum >> 8);
 		
-		if (debug)
-			log.debug("End of CmdPacket constructor");
+		log.debug("End of CmdPacket constructor");
 	}
 
 	@Override
