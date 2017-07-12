@@ -142,7 +142,7 @@ public class A1Device extends BLDevice {
 
         if (err == 0) {
             AES aes = new AES(getIv(), getKey());
-            byte[] pl = aes.decrypt(data);
+            byte[] pl = aes.decrypt(chgLen(subbytes(data, 56, 1024), 1024));
             log.debug("checkSensors Packet received bytes (decrypted): {}", DatatypeConverter.printHexBinary(pl));
             EnvironmentalSensorRaw sensorData = new EnvironmentalSensorRaw();
             if(pl[0x4] >= 48 && pl[0x4] <= 57) {
