@@ -31,6 +31,7 @@ package com.github.mob41.blapi;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -132,7 +133,7 @@ public class RMDevice extends BLDevice {
             }
 
         });
-        byte[] data = packet.getData();
+        byte[] data = Arrays.copyOf(packet.getData(), packet.getLength());
 
         log.debug("Packet received bytes: " + DatatypeConverter.printHexBinary(data));
 
@@ -140,7 +141,7 @@ public class RMDevice extends BLDevice {
 
         if (err == 0){
             AES aes = new AES(getIv(), getKey());
-            byte[] pl = aes.decrypt(data);
+            byte[] pl = aes.decrypt(Arrays.copyOfRange(data, 0x38, data.length));
             return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;
         } else {
             log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
