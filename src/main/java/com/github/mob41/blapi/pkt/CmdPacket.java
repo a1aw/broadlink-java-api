@@ -108,6 +108,12 @@ public class CmdPacket implements Packet {
 
         log.debug("Running checksum for headers");
 
+		/* The program is ported from python.
+		 * Byte in python in the range is 0 to 256, but in java, it is in the range of -128 to 127.
+		 * Here is a judgment to ensure that payload[i] is a positive number and checksum is aways growing.         *         * 
+		 *  
+		 * The same problem exists in data[0x20] and data[0x21], but it does not affect the execution of the program.
+		 */
         int checksum = 0xbeaf;
         for (int i = 0; i < payload.length; i++){
             checksum += payload[i];
