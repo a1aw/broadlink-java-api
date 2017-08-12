@@ -116,7 +116,11 @@ public class CmdPacket implements Packet {
 		 */
         int checksum = 0xbeaf;
         for (int i = 0; i < payload.length; i++){
-            checksum += payload[i];
+        	if(payload[i]>=0){
+                checksum += payload[i];
+        	}else{
+                checksum += 256+payload[i];        		
+        	}
             checksum &= 0xffff;
         }
 
