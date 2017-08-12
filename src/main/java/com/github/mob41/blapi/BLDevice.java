@@ -753,7 +753,7 @@ public abstract class BLDevice implements Closeable{
         log.debug("DESTIP: " + destIpAddr.getHostAddress());
         log.debug("DESTPORT: " + destPort);
         DatagramPacket sendpack = new DatagramPacket(data, data.length, destIpAddr, destPort);
-        sock.send(sendpack);
+        //sock.send(sendpack);
 
         byte[] rece = new byte[bufSize];
         DatagramPacket recepack = new DatagramPacket(rece, 0, rece.length);
