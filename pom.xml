@@ -32,7 +32,7 @@
 
   <groupId>com.github.mob41.blapi</groupId>
   <artifactId>broadlink-java-api</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>broadlink-java-api</name>
