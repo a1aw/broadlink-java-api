@@ -37,11 +37,11 @@ public final class EnterLearnCmdPayload implements CmdPayload {
 
     private final byte[] payloadBytes;
 
-    public EnterLearnCmdPayload(){
+    public EnterLearnCmdPayload() {
         payloadBytes = new byte[16];
         payloadBytes[0] = 3;
 
-        payload = new Payload(){
+        payload = new Payload() {
 
             @Override
             public byte[] getData() {

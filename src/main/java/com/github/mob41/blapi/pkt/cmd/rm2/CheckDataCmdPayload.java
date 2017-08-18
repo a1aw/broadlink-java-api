@@ -37,11 +37,11 @@ public final class CheckDataCmdPayload implements CmdPayload {
 
     private final byte[] payloadBytes;
 
-    public CheckDataCmdPayload(){
+    public CheckDataCmdPayload() {
         payloadBytes = new byte[16];
         payloadBytes[0] = 4;
 
-        payload = new Payload(){
+        payload = new Payload() {
 
             @Override
             public byte[] getData() {

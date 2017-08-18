@@ -39,17 +39,17 @@ public final class SendDataCmdPayload implements CmdPayload {
 
     private final byte[] dataBytes;
 
-    public SendDataCmdPayload(byte[] irRfCodeData){
+    public SendDataCmdPayload(byte[] irRfCodeData) {
         this.dataBytes = irRfCodeData;
 
         payloadBytes = new byte[4 + dataBytes.length];
         payloadBytes[0] = 2;
 
-        for (int i = 4; i < dataBytes.length; i++){
+        for (int i = 4; i < dataBytes.length; i++) {
             payloadBytes[i] = dataBytes[i - 4];
         }
 
-        payload = new Payload(){
+        payload = new Payload() {
 
             @Override
             public byte[] getData() {
@@ -61,9 +61,10 @@ public final class SendDataCmdPayload implements CmdPayload {
 
     /**
      * Returns the IR/RF code data to be sent
+     * 
      * @return IR/RF code data
      */
-    public byte[] getData(){
+    public byte[] getData() {
         return dataBytes;
     }
 

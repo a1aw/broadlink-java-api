@@ -28,6 +28,7 @@
  *******************************************************************************/
 /**
  * Broadlink RM2 command packets implementations
+ * 
  * @author Anthony
  *
  */

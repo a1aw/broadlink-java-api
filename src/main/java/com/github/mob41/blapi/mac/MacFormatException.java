@@ -31,9 +31,10 @@ package com.github.mob41.blapi.mac;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 
 /**
- * <code>MacFormatException</code> is thrown where the
- * MAC address String / bytes array specified does not
- * have a valid format. (Total 48 bit / 6 bytes 00:00:00:00:00:00)
+ * <code>MacFormatException</code> is thrown where the MAC address String /
+ * bytes array specified does not have a valid format. (Total 48 bit / 6 bytes
+ * 00:00:00:00:00:00)
+ * 
  * @author Anthony
  *
  */
@@ -50,16 +51,22 @@ public class MacFormatException extends BLApiRuntimeException {
 
     /**
      * Creates the exception with a "Invalid MAC address String format" message.
-     * @param arg0 the invalid MAC address String
+     * 
+     * @param arg0
+     *            the invalid MAC address String
      */
     public MacFormatException(String arg0) {
         super(INVALID_MAC_FORMAT + ": " + arg0);
     }
 
     /**
-     * Creates the exception with a "Invalid MAC address String format" message, and a <code>Throwable</code>
-     * @param arg0 the invalid MAC address String
-     * @param arg1 the Throwable
+     * Creates the exception with a "Invalid MAC address String format" message,
+     * and a <code>Throwable</code>
+     * 
+     * @param arg0
+     *            the invalid MAC address String
+     * @param arg1
+     *            the Throwable
      */
     public MacFormatException(String arg0, Throwable arg1) {
         super(INVALID_MAC_FORMAT + ": " + arg0, arg1);
@@ -67,19 +74,22 @@ public class MacFormatException extends BLApiRuntimeException {
 
     /**
      * Creates the exception with a "Incorrect MAC address bytes"
-     * @param bytes the bytes array with incorrect length (not equal to 6)
+     * 
+     * @param bytes
+     *            the bytes array with incorrect length (not equal to 6)
      */
     public MacFormatException(byte[] bytes) {
-        super(INCORRECT_MAC_ADDR_BYTES + ": " + (bytes != null ? bytes.length : "null") + "/6: " + bytesArrToHexStrArr(bytes));
+        super(INCORRECT_MAC_ADDR_BYTES + ": " + (bytes != null ? bytes.length : "null") + "/6: "
+                + bytesArrToHexStrArr(bytes));
     }
 
-    private static String[] bytesArrToHexStrArr(byte[] ba){
-        if (ba == null){
+    private static String[] bytesArrToHexStrArr(byte[] ba) {
+        if (ba == null) {
             return null;
         }
 
         String[] outa = new String[ba.length];
-        for (int i = 0; i < outa.length; i++){
+        for (int i = 0; i < outa.length; i++) {
             outa[i] = Integer.toHexString(ba[i]);
         }
 

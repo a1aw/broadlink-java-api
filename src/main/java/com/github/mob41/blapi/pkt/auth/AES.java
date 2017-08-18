@@ -42,7 +42,7 @@ public class AES {
 
     private final byte[] iv;
 
-    public AES(byte[] iv, byte[] key){
+    public AES(byte[] iv, byte[] key) {
         this.key = key;
         this.iv = iv;
     }

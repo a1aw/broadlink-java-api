@@ -37,7 +37,9 @@ import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
 
 /**
- * This constructs a byte array with the format of a command to the Broadlink device
+ * This constructs a byte array with the format of a command to the Broadlink
+ * device
+ * 
  * @author Anthony
  *
  */
@@ -45,23 +47,32 @@ public class CmdPacket implements Packet {
 
     private static final Logger log = LoggerFactory.getLogger(CmdPacket.class);
 
-    private static final int DEFAULT_BYTES_SIZE = 0x38; //56-bytes
+    private static final int DEFAULT_BYTES_SIZE = 0x38; // 56-bytes
 
     private final byte[] data;
 
     /**
      * Constructs a command packet
-     * @param targetMac Target Broadlink device MAC address
-     * @param count Count of packets sent (provided by BLDevice sendPkt())
-     * @param id This BLDevice ID provided by the Broadlink device. It is {0,0,0,0} if auth() not ran
-     * @param iv Encryption IV. It is from the INITIAL_IV or the Broadlink device
-     * @param key Encrytion KEY. It is from the INITIAL_KEY or the Broadlink device
-     * @param cmd The command
-     * @param payload The data to be sent
+     * 
+     * @param targetMac
+     *            Target Broadlink device MAC address
+     * @param count
+     *            Count of packets sent (provided by BLDevice sendPkt())
+     * @param id
+     *            This BLDevice ID provided by the Broadlink device. It is
+     *            {0,0,0,0} if auth() not ran
+     * @param iv
+     *            Encryption IV. It is from the INITIAL_IV or the Broadlink
+     *            device
+     * @param key
+     *            Encrytion KEY. It is from the INITIAL_KEY or the Broadlink
+     *            device
+     * @param cmd
+     *            The command
+     * @param payload
+     *            The data to be sent
      */
-    public CmdPacket(Mac targetMac, int count,
-            byte[] id, byte[] iv, byte[] key,
-            CmdPayload cmdPayload) {
+    public CmdPacket(Mac targetMac, int count, byte[] id, byte[] iv, byte[] key, CmdPayload cmdPayload) {
 
         byte cmd = cmdPayload.getCommand();
         byte[] payload = cmdPayload.getPayload().getData();
@@ -69,7 +80,7 @@ public class CmdPacket implements Packet {
         log.debug("Constructor CmdPacket starts");
         log.trace("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
 
-        count = (count + 1) & 0xffff; //increased by the sendPkt()
+        count = (count + 1) & 0xffff; // increased by the sendPkt()
 
         log.trace("New count: " + count + " (added by 1)");
         log.trace("Creating byte array with data");
@@ -109,7 +120,7 @@ public class CmdPacket implements Packet {
         log.debug("Running checksum for headers");
 
         int checksum = 0xbeaf;
-        for (int i = 0; i < payload.length; i++){
+        for (int i = 0; i < payload.length; i++) {
             checksum += payload[i];
             checksum &= 0xffff;
         }
@@ -134,14 +145,14 @@ public class CmdPacket implements Packet {
             throw new BLApiRuntimeException("Cannot encrypt payload", e);
         }
 
-        for (int i = DEFAULT_BYTES_SIZE; i < data.length; i++){
+        for (int i = DEFAULT_BYTES_SIZE; i < data.length; i++) {
             data[i] = payload[i - DEFAULT_BYTES_SIZE];
         }
 
         log.debug("Running whole packet checksum");
 
         checksum = 0xbeaf;
-        for (int i = 0; i < data.length; i++){
+        for (int i = 0; i < data.length; i++) {
             checksum += data[i];
             checksum &= 0xffff;
         }

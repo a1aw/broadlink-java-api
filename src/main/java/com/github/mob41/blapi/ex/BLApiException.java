@@ -29,9 +29,9 @@
 package com.github.mob41.blapi.ex;
 
 /**
- * <code>BLApiException</code> is the super-class of multiple
- * exceptions thrown in the library that requires applications
- * to catch.
+ * <code>BLApiException</code> is the super-class of multiple exceptions thrown
+ * in the library that requires applications to catch.
+ * 
  * @author Anthony
  *
  */

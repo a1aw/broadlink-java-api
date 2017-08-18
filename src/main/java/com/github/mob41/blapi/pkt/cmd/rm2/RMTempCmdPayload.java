@@ -40,7 +40,7 @@ public final class RMTempCmdPayload implements CmdPayload {
 
     @Override
     public Payload getPayload() {
-        return new Payload(){
+        return new Payload() {
 
             @Override
             public byte[] getData() {

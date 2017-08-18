@@ -58,9 +58,9 @@ public class MP1Device extends BLDevice {
         setPowerMask(sid_mask, state);
     }
 
-    public void setPowerMask(final int sid_mask, final boolean state) throws Exception  {
+    public void setPowerMask(final int sid_mask, final boolean state) throws Exception {
         // """Sets the power state of the smart power strip."""
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -69,7 +69,7 @@ public class MP1Device extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {
@@ -153,7 +153,7 @@ public class MP1Device extends BLDevice {
     }
 
     public boolean[] checkPower() throws Exception {
-        //"""Returns the power state of the smart power strip."""
+        // """Returns the power state of the smart power strip."""
         byte state = checkPowerRaw();
         boolean[] data = new boolean[4];
         data[0] = ((state & 0x01) != 0) ? true : false;

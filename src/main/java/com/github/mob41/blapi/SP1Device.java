@@ -40,9 +40,9 @@ import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class SP1Device extends BLDevice {
-    
+
     private static final Logger log = LoggerFactory.getLogger(SP1Device.class);
-    
+
     public static final String DESC_SP1 = "Smart Plug V1";
 
     public SP1Device(String host, Mac mac) throws IOException {
@@ -51,7 +51,7 @@ public class SP1Device extends BLDevice {
     }
 
     public void setPower(final boolean state) throws Exception {
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -60,7 +60,7 @@ public class SP1Device extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {

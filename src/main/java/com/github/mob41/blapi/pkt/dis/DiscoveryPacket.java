@@ -41,33 +41,36 @@ import com.github.mob41.blapi.pkt.Packet;
 
 /**
  * This class packs a packet to discover Broadlink devices
+ * 
  * @author Anthony
  *
  */
 public class DiscoveryPacket implements Packet {
 
-    public static final int DEFAULT_SOURCE_PORT = 0; //This source port is from the python-broadlink source code
+    public static final int DEFAULT_SOURCE_PORT = 0; // This source port is from
+                                                     // the python-broadlink
+                                                     // source code
 
     private static final Logger log = LoggerFactory.getLogger(DiscoveryPacket.class);
 
     private final byte[] data;
 
-    public DiscoveryPacket(){
+    public DiscoveryPacket() {
         this(null);
     }
 
-    public DiscoveryPacket(InetAddress localIpAddr){
+    public DiscoveryPacket(InetAddress localIpAddr) {
         this(localIpAddr, DEFAULT_SOURCE_PORT, Calendar.getInstance(), TimeZone.getDefault());
     }
 
-    public DiscoveryPacket(InetAddress localIpAddr, int sourcePort){
+    public DiscoveryPacket(InetAddress localIpAddr, int sourcePort) {
         this(localIpAddr, sourcePort, Calendar.getInstance(), TimeZone.getDefault());
     }
 
     public DiscoveryPacket(InetAddress localIpAddr, int sourcePort, Calendar cal, TimeZone tz) {
         log.debug("DiscoveryPacket constructor start");
         log.trace("cal=" + cal.getTimeInMillis() + " tz=" + tz.getID());
-        if (localIpAddr == null){
+        if (localIpAddr == null) {
             log.debug("localIpAddr is null. Calling InetAddress.getLocalHost");
             try {
                 localIpAddr = InetAddress.getLocalHost();
@@ -88,9 +91,17 @@ public class DiscoveryPacket implements Packet {
         int hr = cal.get(Calendar.HOUR);
 
         int year = cal.get(Calendar.YEAR);
-        int dayOfWk = dayOfWeekConv(cal.get(Calendar.DAY_OF_WEEK)); //Day of week (May return -1 if Calendar return a wrong field value)
-        int dayOfMn = cal.get(Calendar.DAY_OF_MONTH); //Day of month
-        int month = cal.get(Calendar.MONTH) + 1; //Month
+        int dayOfWk = dayOfWeekConv(cal.get(Calendar.DAY_OF_WEEK)); // Day of
+                                                                    // week (May
+                                                                    // return -1
+                                                                    // if
+                                                                    // Calendar
+                                                                    // return a
+                                                                    // wrong
+                                                                    // field
+                                                                    // value)
+        int dayOfMn = cal.get(Calendar.DAY_OF_MONTH); // Day of month
+        int month = cal.get(Calendar.MONTH) + 1; // Month
 
         log.trace("min=" + min + " hr=" + hr);
         log.trace("year=" + year + " dayOfWk=" + dayOfWk);
@@ -98,12 +109,12 @@ public class DiscoveryPacket implements Packet {
 
         byte[] ipAddrBytes = localIpAddr.getAddress();
 
-        data = new byte[0x30]; //48-byte
+        data = new byte[0x30]; // 48-byte
 
-        //data[0x00-0x07] = 0x00;
+        // data[0x00-0x07] = 0x00;
 
-        //This is directly "copied" from the python-broadlink source code
-        if (tzOffset < 0){
+        // This is directly "copied" from the python-broadlink source code
+        if (tzOffset < 0) {
             data[0x08] = (byte) (0xff + tzOffset - 1);
             data[0x09] = (byte) 0xff;
             data[0x0a] = (byte) 0xff;
@@ -118,19 +129,22 @@ public class DiscoveryPacket implements Packet {
         }
 
         data[0x0c] = (byte) (year & 0xff);
-        data[0x0d] = (byte) (year >> 8); //Shift 8 bits
+        data[0x0d] = (byte) (year >> 8); // Shift 8 bits
 
         data[0x0e] = (byte) min;
         data[0x0f] = (byte) hr;
 
-        //subyear = str(year)[2:] //Somehow this code is dirty to do the same as python code
-        data[0x10] = (byte) Integer.parseInt(Integer.toString(year).substring(2, 4)); //Year without century
+        // subyear = str(year)[2:] //Somehow this code is dirty to do the same
+        // as python code
+        data[0x10] = (byte) Integer.parseInt(Integer.toString(year).substring(2, 4)); // Year
+                                                                                      // without
+                                                                                      // century
 
         data[0x11] = (byte) dayOfWk;
         data[0x12] = (byte) dayOfMn;
         data[0x13] = (byte) month;
 
-        //IP address
+        // IP address
         data[0x18] = ipAddrBytes[0];
         data[0x19] = ipAddrBytes[1];
         data[0x1a] = ipAddrBytes[2];
@@ -141,11 +155,11 @@ public class DiscoveryPacket implements Packet {
 
         data[0x26] = 6;
 
-        //Checksum
+        // Checksum
         short checksum = (short) 0xbeaf;
 
-        for (int i = 0; i < data.length; i++){
-            checksum += (int)(data[i] & 0xff);
+        for (int i = 0; i < data.length; i++) {
+            checksum += (int) (data[i] & 0xff);
         }
 
         log.debug("checksum=" + Integer.toHexString(checksum));
@@ -161,8 +175,8 @@ public class DiscoveryPacket implements Packet {
         return data;
     }
 
-    private static int dayOfWeekConv(int fieldVal){
-        switch (fieldVal){
+    private static int dayOfWeekConv(int fieldVal) {
+        switch (fieldVal) {
         case Calendar.SUNDAY:
             return 6;
         case Calendar.MONDAY:

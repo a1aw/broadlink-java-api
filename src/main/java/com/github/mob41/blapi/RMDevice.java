@@ -44,7 +44,7 @@ import com.github.mob41.blapi.pkt.auth.AES;
 import com.github.mob41.blapi.pkt.cmd.rm2.EnterLearnCmdPayload;
 
 public class RMDevice extends BLDevice {
-    
+
     private static final Logger log = LoggerFactory.getLogger(RMDevice.class);
 
     public static final String DESC_RM_2 = "RM 2";
@@ -67,7 +67,7 @@ public class RMDevice extends BLDevice {
 
     public RMDevice(short deviceType, String host, Mac mac) throws IOException {
         super(deviceType, host, mac);
-        switch(deviceType) {
+        switch (deviceType) {
         case BLDevice.DEV_RM_2:
             this.setDeviceDescription(DESC_RM_2);
             break;
@@ -110,7 +110,7 @@ public class RMDevice extends BLDevice {
     }
 
     public double getTemp() throws Exception {
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -119,7 +119,7 @@ public class RMDevice extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {
@@ -138,7 +138,7 @@ public class RMDevice extends BLDevice {
 
         int err = data[0x22] | (data[0x23] << 8);
 
-        if (err == 0){
+        if (err == 0) {
             AES aes = new AES(getIv(), getKey());
             byte[] pl = aes.decrypt(data);
             return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;

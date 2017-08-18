@@ -29,8 +29,9 @@
 package com.github.mob41.blapi.ex;
 
 /**
- * <code>BLApiRuntimeException</code> is the super-class of multiple
- * exceptions thrown in the runtime of the library.
+ * <code>BLApiRuntimeException</code> is the super-class of multiple exceptions
+ * thrown in the runtime of the library.
+ * 
  * @author Anthony
  *
  */

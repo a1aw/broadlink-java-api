@@ -43,7 +43,7 @@ import com.github.mob41.blapi.pkt.Payload;
 import com.github.mob41.blapi.pkt.auth.AES;
 
 public class SP2Device extends BLDevice {
-    
+
     private static final Logger log = LoggerFactory.getLogger(SP2Device.class);
 
     public static final String DESC_SP2 = "Smart Plug V2";
@@ -70,7 +70,7 @@ public class SP2Device extends BLDevice {
 
     public SP2Device(short deviceType, String host, Mac mac) throws IOException {
         super(deviceType, host, mac);
-        switch(deviceType) {
+        switch (deviceType) {
         case BLDevice.DEV_SP2:
             this.setDeviceDescription(DESC_SP2);
             break;
@@ -111,7 +111,7 @@ public class SP2Device extends BLDevice {
     }
 
     public void setPower(final boolean state) throws Exception {
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -120,12 +120,12 @@ public class SP2Device extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {
                         byte[] b = new byte[16];
-                        b[0] = (byte)2;
+                        b[0] = (byte) 2;
                         b[4] = (byte) (state ? 1 : 0);
                         return b;
                     }
@@ -139,7 +139,7 @@ public class SP2Device extends BLDevice {
     }
 
     public boolean checkPower() throws Exception {
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -148,7 +148,7 @@ public class SP2Device extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {
@@ -167,7 +167,7 @@ public class SP2Device extends BLDevice {
 
         int err = data[0x22] | (data[0x23] << 8);
 
-        if (err == 0){
+        if (err == 0) {
             AES aes = new AES(getIv(), getKey());
             byte[] pl = aes.decrypt(data);
             return pl[0x4] == 1 ? true : false;

@@ -42,9 +42,9 @@ import com.github.mob41.blapi.pkt.Payload;
 import com.github.mob41.blapi.pkt.auth.AES;
 
 public class A1Device extends BLDevice {
-    
+
     private static final Logger log = LoggerFactory.getLogger(A1Device.class);
-    
+
     public static final String DESC_A1 = "Environmental Sensor";
 
     public A1Device(String host, Mac mac) throws IOException {
@@ -112,7 +112,7 @@ public class A1Device extends BLDevice {
     }
 
     public EnvironmentalSensorRaw checkSensorsRaw() throws Exception {
-        DatagramPacket packet = sendCmdPkt(new CmdPayload(){
+        DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
             @Override
             public byte getCommand() {
@@ -121,7 +121,7 @@ public class A1Device extends BLDevice {
 
             @Override
             public Payload getPayload() {
-                return new Payload(){
+                return new Payload() {
 
                     @Override
                     public byte[] getData() {
@@ -145,7 +145,7 @@ public class A1Device extends BLDevice {
             byte[] pl = aes.decrypt(chgLen(subbytes(data, 56, 1024), 1024));
             log.debug("checkSensors Packet received bytes (decrypted): {}", DatatypeConverter.printHexBinary(pl));
             EnvironmentalSensorRaw sensorData = new EnvironmentalSensorRaw();
-            if(pl[0x4] >= 48 && pl[0x4] <= 57) {
+            if (pl[0x4] >= 48 && pl[0x4] <= 57) {
                 String decodeValue1;
                 String decodeValue2;
                 byte value1;
@@ -154,12 +154,12 @@ public class A1Device extends BLDevice {
                 decodeValue2 = String.valueOf(pl[0x5]);
                 value1 = Short.decode(decodeValue1).byteValue();
                 value2 = Short.decode(decodeValue2).byteValue();
-                sensorData.setTemperature((float)((value1 * 10 + value2) / 10.0));
+                sensorData.setTemperature((float) ((value1 * 10 + value2) / 10.0));
                 decodeValue1 = String.valueOf(pl[0x6]);
                 decodeValue2 = String.valueOf(pl[0x7]);
                 value1 = Short.decode(decodeValue1).byteValue();
                 value2 = Short.decode(decodeValue2).byteValue();
-                sensorData.setHumidity((float)((value1 * 10 + value2) / 10.0));
+                sensorData.setHumidity((float) ((value1 * 10 + value2) / 10.0));
                 decodeValue1 = String.valueOf(pl[0x8]);
                 sensorData.setLight(Short.decode(decodeValue1).byteValue());
                 decodeValue1 = String.valueOf(pl[0x0a]);
@@ -167,8 +167,8 @@ public class A1Device extends BLDevice {
                 decodeValue1 = String.valueOf(pl[0xc]);
                 sensorData.setNoise(Short.decode(decodeValue1).byteValue());
             } else {
-                sensorData.setTemperature((float)((pl[0x4] * 10 + pl[0x5]) / 10.0));
-                sensorData.setHumidity((float)((pl[0x6] * 10 + pl[0x7]) / 10.0));
+                sensorData.setTemperature((float) ((pl[0x4] * 10 + pl[0x5]) / 10.0));
+                sensorData.setHumidity((float) ((pl[0x6] * 10 + pl[0x7]) / 10.0));
                 sensorData.setLight(pl[0x8]);
                 sensorData.setAirquality(pl[0x0a]);
                 sensorData.setNoise(pl[0xc]);
