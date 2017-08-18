@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Contributors:
- *     - Anthony Law (mob41) - Initial API Implementation
- *     - bwssytems
- *     - Christian Fischer (computerlyrik)
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 package com.github.mob41.blapi;
 
@@ -124,6 +124,70 @@ public abstract class BLDevice implements Closeable {
     public static final short DEV_A1 = 0x2714;
 
     public static final short DEV_MP1 = 0x4EB5;
+    
+    //
+    // Friendly device description
+    //
+    // Notice: Developers are not recommended to use device description as device identifiers.
+    //         Instead, developers are advised to use Device Type Hex numbers.
+    
+    //Unknown
+    
+    public static final String DESC_UNKNOWN = "Unknown Device";
+    
+    //RM Series
+
+    public static final String DESC_RM_2 = "RM 2";
+
+    public static final String DESC_RM_MINI = "RM Mini";
+
+    public static final String DESC_RM_PRO_PHICOMM = "RM Pro";
+
+    public static final String DESC_RM_2_HOME_PLUS = "RM 2 Home Plus";
+
+    public static final String DESC_RM_2_2HOME_PLUS_GDT = "RM 2 Home Plus GDT";
+
+    public static final String DESC_RM_2_PRO_PLUS = "RM 2 Pro Plus";
+
+    public static final String DESC_RM_2_PRO_PLUS_2 = "RM 2 Pro Plus 2";
+
+    public static final String DESC_RM_2_PRO_PLUS_2_BL = "RM 2 Pro Plus 2 BL";
+
+    public static final String DESC_RM_MINI_SHATE = "RM Mini SHATE";
+    
+    //A Series
+
+    public static final String DESC_A1 = "Environmental Sensor";
+    
+    //MP Series
+
+    public static final String DESC_MP1 = "Power Strip";
+    
+    //SP Series
+
+    public static final String DESC_SP1 = "Smart Plug V1";
+
+    public static final String DESC_SP2 = "Smart Plug V2";
+
+    public static final String DESC_SP2_HONEYWELL_ALT1 = "Smart Plug Honeywell Alt 1";
+
+    public static final String DESC_SP2_HONEYWELL_ALT2 = "Smart Plug Honeywell Alt 2";
+
+    public static final String DESC_SP2_HONEYWELL_ALT3 = "Smart Plug Honeywell Alt 3";
+
+    public static final String DESC_SP2_HONEYWELL_ALT4 = "Smart Plug Honeywell Alt 4";
+
+    public static final String DESC_SPMINI = "Smart Plug Mini";
+
+    public static final String DESC_SP3 = "Smart Plug V3";
+
+    public static final String DESC_SPMINI2 = "Smart Plug Mini V2";
+
+    public static final String DESC_SPMINI_OEM_ALT1 = "Smart Plug OEM Alt 1";
+
+    public static final String DESC_SPMINI_OEM_ALT2 = "Smart Plug OEM Alt 2";
+
+    public static final String DESC_SPMINI_PLUS = "Smart Plug Mini Plus";
 
     /**
      * The destination port for discovery broadcasting (from __init__.py)
@@ -171,8 +235,11 @@ public abstract class BLDevice implements Closeable {
      * <code>BLDevice.DEV_*</code> constants
      */
     private final short deviceType;
-
-    private String deviceDescription;
+    
+    /**
+     * A friendly description of this device
+     */
+    private final String deviceDesc;
 
     /**
      * Specific datagram socket for this instance, to reuse address.
@@ -196,6 +263,8 @@ public abstract class BLDevice implements Closeable {
      * 
      * @param deviceType
      *            Device type constants (<code>BLDevice.DEV_*</code>)
+     * @param devDesc
+     *            Friendly device description
      * @param host
      *            Hostname of target Broadlink device
      * @param mac
@@ -203,7 +272,7 @@ public abstract class BLDevice implements Closeable {
      * @throws IOException
      *             Problems on constructing a datagram socket
      */
-    protected BLDevice(short deviceType, String host, Mac mac) throws IOException {
+    protected BLDevice(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
         key = INITIAL_KEY;
         iv = INITIAL_IV;
         id = new byte[] { 0, 0, 0, 0 };
@@ -212,7 +281,8 @@ public abstract class BLDevice implements Closeable {
         // pktCount = 0;
 
         this.deviceType = deviceType;
-
+        this.deviceDesc = deviceDesc;
+        
         this.host = host;
         this.mac = mac;
 
@@ -274,12 +344,12 @@ public abstract class BLDevice implements Closeable {
         return key;
     }
 
+    /**
+     * Returns a friendly description of this BLDevice
+     * @return a String
+     */
     public String getDeviceDescription() {
-        return deviceDescription;
-    }
-
-    public void setDeviceDescription(String deviceDescription) {
-        this.deviceDescription = deviceDescription;
+        return deviceDesc;
     }
 
     // TODO: remove this
@@ -497,6 +567,7 @@ public abstract class BLDevice implements Closeable {
      *             Problems when constucting a datagram socket
      */
     public static BLDevice createInstance(short deviceType, String host, Mac mac) throws IOException {
+        String desc = BLDevice.getDescOfType(deviceType);
         switch (deviceType) {
         case DEV_SP1:
             return new SP1Device(host, mac);
@@ -511,7 +582,7 @@ public abstract class BLDevice implements Closeable {
         case DEV_SPMINI_OEM_ALT1:
         case DEV_SPMINI_OEM_ALT2:
         case DEV_SPMINI_PLUS:
-            return new SP2Device(deviceType, host, mac);
+            return new SP2Device(deviceType, desc, host, mac);
         case DEV_RM_2:
         case DEV_RM_MINI:
         case DEV_RM_PRO_PHICOMM:
@@ -521,7 +592,7 @@ public abstract class BLDevice implements Closeable {
         case DEV_RM_2_PRO_PLUS_2:
         case DEV_RM_2_PRO_PLUS_2_BL:
         case DEV_RM_MINI_SHATE:
-            return new RMDevice(deviceType, host, mac);
+            return new RM2Device(deviceType, desc, host, mac);
         case DEV_A1:
             return new A1Device(host, mac);
         case DEV_MP1:
@@ -693,6 +764,67 @@ public abstract class BLDevice implements Closeable {
             log.debug("End of device discovery");
 
         return out;
+    }
+    
+    private static String getDescOfType(short devType){
+        switch (devType) {
+        
+        //
+        // RM Series
+        //
+        
+        case BLDevice.DEV_RM_2:
+            return DESC_RM_2;
+        case BLDevice.DEV_RM_MINI:
+            return DESC_RM_MINI;
+        case BLDevice.DEV_RM_PRO_PHICOMM:
+            return DESC_RM_PRO_PHICOMM;
+        case BLDevice.DEV_RM_2_HOME_PLUS:
+            return DESC_RM_2_HOME_PLUS;
+        case BLDevice.DEV_RM_2_2HOME_PLUS_GDT:
+            return DESC_RM_2_2HOME_PLUS_GDT;
+        case BLDevice.DEV_RM_2_PRO_PLUS:
+            return DESC_RM_2_PRO_PLUS;
+        case BLDevice.DEV_RM_2_PRO_PLUS_2:
+            return DESC_RM_2_PRO_PLUS_2;
+        case BLDevice.DEV_RM_2_PRO_PLUS_2_BL:
+            return DESC_RM_2_PRO_PLUS_2_BL;
+        case BLDevice.DEV_RM_MINI_SHATE:
+            return DESC_RM_MINI_SHATE;
+        
+        //
+        // SP2 Series
+        //
+
+        case BLDevice.DEV_SP2:
+            return DESC_SP2;
+        case BLDevice.DEV_SP2_HONEYWELL_ALT1:
+            return DESC_SP2_HONEYWELL_ALT1;
+        case BLDevice.DEV_SP2_HONEYWELL_ALT2:
+            return DESC_SP2_HONEYWELL_ALT2;
+        case BLDevice.DEV_SP2_HONEYWELL_ALT3:
+            return DESC_SP2_HONEYWELL_ALT3;
+        case BLDevice.DEV_SP2_HONEYWELL_ALT4:
+            return DESC_SP2_HONEYWELL_ALT4;
+        case BLDevice.DEV_SP3:
+            return DESC_SP3;
+        case BLDevice.DEV_SPMINI:
+            return DESC_SPMINI;
+        case BLDevice.DEV_SPMINI2:
+            return DESC_SPMINI2;
+        case BLDevice.DEV_SPMINI_OEM_ALT1:
+            return DESC_SPMINI_OEM_ALT1;
+        case BLDevice.DEV_SPMINI_OEM_ALT2:
+            return DESC_SPMINI_OEM_ALT2;
+        case BLDevice.DEV_SPMINI_PLUS:
+            return DESC_SPMINI_PLUS;
+
+        //
+        // Unregonized
+        //
+        default:
+            return DESC_UNKNOWN;
+        }
     }
 
     /**

@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Contributors:
- *     - Anthony Law (mob41) - Initial API Implementation
- *     - bwssytems
- *     - Christian Fischer (computerlyrik)
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 /**
  * Broadlink RM2 command packets implementations

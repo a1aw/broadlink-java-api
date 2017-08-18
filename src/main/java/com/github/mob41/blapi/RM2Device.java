@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Contributors:
- *     - Anthony Law (mob41) - Initial API Implementation
- *     - bwssytems
- *     - Christian Fischer (computerlyrik)
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 package com.github.mob41.blapi;
 
@@ -44,8 +44,18 @@ import com.github.mob41.blapi.pkt.cmd.rm2.RMTempCmdPayload;
  *
  */
 public class RM2Device extends BLDevice {
-
-    private static final String DESC = "RM2";
+    
+    /**
+     * Generic way to create a RM2Device
+     * @param deviceType Device Type
+     * @param deviceDesc Friendly device description
+     * @param host The target Broadlink hostname
+     * @param mac The target Broadlink MAC address
+     * @throws IOException Problems on constructing socket
+     */
+    protected RM2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException{
+        super(deviceType, deviceDesc, host, mac);
+    }
 
     /**
      * Creates a RM2Device client instance
@@ -58,8 +68,7 @@ public class RM2Device extends BLDevice {
      *             Problems on constructing socket
      */
     public RM2Device(String host, Mac mac) throws IOException {
-        super(BLDevice.DEV_RM_2, host, mac);
-        setDeviceDescription(DESC);
+        super(BLDevice.DEV_RM_2, BLDevice.DESC_RM_2, host, mac);
     }
 
     /**

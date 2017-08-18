@@ -1,4 +1,34 @@
+/*******************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2016, 2017 Anthony Law
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Contributors:
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
+ *******************************************************************************/
 package com.github.mob41.blapi;
+
+import java.util.Arrays;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,14 +52,14 @@ public class DevicesTest {
             dev.auth();
             switch (dev.getDeviceType()) {
             case BLDevice.DEV_A1:
-                EnvironmentalSensor theData = ((A1Device) dev).checkSensors();
-                log.info("A1Device Temp: " + theData.getTemperature() + ", Humidity: " + theData.getHumidity()
-                        + ", light: " + theData.getLight() + ", air_quality: " + theData.getAirquality() + ", noise: "
+                EnvData theData = ((A1Device) dev).getSensorsData();
+                log.info("A1Device Temp: " + theData.getTemp() + ", Humidity: " + theData.getHumidity()
+                        + ", light: " + theData.getLight() + ", air_quality: " + theData.getAirQualityDescription() + ", noise: "
                         + theData.getNoise());
                 break;
             case BLDevice.DEV_MP1:
-                byte byteData = ((MP1Device) dev).checkPowerRaw();
-                log.info("MP1 Device srtatus byte: " + byteData);
+                boolean[] states = ((MP1Device) dev).getStates();
+                log.info("MP1 Device all status: " + Arrays.toString(states));
                 break;
             case BLDevice.DEV_SP2:
             case BLDevice.DEV_SP2_HONEYWELL_ALT1:
@@ -42,7 +72,7 @@ public class DevicesTest {
             case BLDevice.DEV_SPMINI_OEM_ALT1:
             case BLDevice.DEV_SPMINI_OEM_ALT2:
             case BLDevice.DEV_SPMINI_PLUS:
-                boolean state = ((SP2Device) dev).checkPower();
+                boolean state = ((SP2Device) dev).getState();
                 log.info("SP2Device returned state: " + state);
                 break;
             case BLDevice.DEV_SP1:
@@ -58,7 +88,7 @@ public class DevicesTest {
             case BLDevice.DEV_RM_2_PRO_PLUS_2:
             case BLDevice.DEV_RM_2_PRO_PLUS_2_BL:
             case BLDevice.DEV_RM_MINI_SHATE:
-                double theTemp = ((RMDevice) dev).getTemp();
+                double theTemp = ((RM2Device) dev).getTemp();
                 log.info("RMDevice get temperature: " + theTemp);
                 break;
 

@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Contributors:
- *     - Anthony Law (mob41) - Initial API Implementation
- *     - bwssytems
- *     - Christian Fischer (computerlyrik)
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 
 package com.github.mob41.blapi;
@@ -45,20 +45,45 @@ import com.github.mob41.blapi.pkt.auth.AES;
 public class MP1Device extends BLDevice {
 
     private static final Logger log = LoggerFactory.getLogger(MP1Device.class);
-
-    public static final String DESC_MP1 = "Power Strip";
-
+    
+    /**
+     * Generic way to create a MP1Device
+     * @param deviceType Device Type
+     * @param deviceDesc Friendly device description
+     * @param host The target Broadlink hostname
+     * @param mac The target Broadlink MAC address
+     * @throws IOException Problems on constructing socket
+     */
+    protected MP1Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException{
+        super(deviceType, deviceDesc, host, mac);
+    }
+    
+    /**
+     * Creates a MP1Device client instance
+     * 
+     * @param host
+     *            The target Broadlink hostname
+     * @param mac
+     *            The target Broadlink MAC address
+     * @throws IOException
+     *             Problems on constructing socket
+     */
     public MP1Device(String host, Mac mac) throws IOException {
-        super(BLDevice.DEV_MP1, host, mac);
-        this.setDeviceDescription(DESC_MP1);
+        super(BLDevice.DEV_MP1, BLDevice.DESC_MP1, host, mac);
     }
 
-    public void setPower(int sid, boolean state) throws Exception {
+    /**
+     * Set the power state
+     * @param sid The SID
+     * @param state Power State
+     * @throws Exception
+     */
+    public void setState(int sid, boolean state) throws Exception {
         int sid_mask = 0x01 << (sid - 1);
-        setPowerMask(sid_mask, state);
+        setStateMask(sid_mask, state);
     }
 
-    public void setPowerMask(final int sid_mask, final boolean state) throws Exception {
+    private void setStateMask(final int sid_mask, final boolean state) throws Exception {
         // """Sets the power state of the smart power strip."""
         DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
@@ -93,10 +118,25 @@ public class MP1Device extends BLDevice {
 
         });
 
-        log.debug("receveid set power bytes: " + packet.getData());
+        log.debug("Received set power bytes: " + packet.getData());
+    }
+    
+    public boolean getStateByIndex(int index) throws Exception{
+        return getStates()[index];
     }
 
-    public byte checkPowerRaw() throws Exception {
+    public boolean[] getStates() throws Exception {
+        // """Returns the power state of the smart power strip."""
+        byte state = getStatesRaw();
+        boolean[] data = new boolean[4];
+        data[0] = ((state & 0x01) != 0) ? true : false;
+        data[1] = ((state & 0x02) != 0) ? true : false;
+        data[2] = ((state & 0x04) != 0) ? true : false;
+        data[3] = ((state & 0x08) != 0) ? true : false;
+        return data;
+    }
+    
+    private byte getStatesRaw() throws Exception {
         // """Returns the power state of the smart power strip in raw format."""
         DatagramPacket packet = sendCmdPkt(new CmdPayload() {
 
@@ -150,16 +190,5 @@ public class MP1Device extends BLDevice {
             log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
         }
         return 0;
-    }
-
-    public boolean[] checkPower() throws Exception {
-        // """Returns the power state of the smart power strip."""
-        byte state = checkPowerRaw();
-        boolean[] data = new boolean[4];
-        data[0] = ((state & 0x01) != 0) ? true : false;
-        data[1] = ((state & 0x02) != 0) ? true : false;
-        data[2] = ((state & 0x04) != 0) ? true : false;
-        data[3] = ((state & 0x08) != 0) ? true : false;
-        return data;
     }
 }

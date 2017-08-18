@@ -22,9 +22,9 @@
  * SOFTWARE.
  *
  * Contributors:
- *     - Anthony Law (mob41) - Initial API Implementation
- *     - bwssytems
- *     - Christian Fischer (computerlyrik)
+ *      - Anthony Law (mob41) - Initial API Implementation
+ *      - bwssytems
+ *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 
 package com.github.mob41.blapi;
@@ -43,11 +43,8 @@ public class SP1Device extends BLDevice {
 
     private static final Logger log = LoggerFactory.getLogger(SP1Device.class);
 
-    public static final String DESC_SP1 = "Smart Plug V1";
-
     public SP1Device(String host, Mac mac) throws IOException {
-        super(BLDevice.DEV_SP1, host, mac);
-        this.setDeviceDescription(DESC_SP1);
+        super(BLDevice.DEV_SP1, BLDevice.DESC_SP1, host, mac);
     }
 
     public void setPower(final boolean state) throws Exception {
