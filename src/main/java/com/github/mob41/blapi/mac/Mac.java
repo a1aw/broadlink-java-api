@@ -168,5 +168,10 @@ public class Mac {
         }
         return str;
     }
+    
+    @Override
+    public String toString(){
+        return getMacString();
+    }
 
 }
