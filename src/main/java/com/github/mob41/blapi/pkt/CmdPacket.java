@@ -137,7 +137,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aes.encrypt(payload);
-            BLDevice.printBytes(payload);
+//            BLDevice.printBytes(payload);
 
             log.trace("Encrypted. len=" + payload.length);
         } catch (Exception e) {
@@ -145,8 +145,8 @@ public class CmdPacket implements Packet {
             throw new BLApiRuntimeException("Cannot encrypt payload", e);
         }
 
-        for (int i = DEFAULT_BYTES_SIZE; i < data.length; i++) {
-            data[i] = payload[i - DEFAULT_BYTES_SIZE];
+        for (int i = 0; i < payload.length; i++) {
+            data[i + DEFAULT_BYTES_SIZE] = payload[i];
         }
 
         log.debug("Running whole packet checksum");
