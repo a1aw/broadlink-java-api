@@ -26,23 +26,29 @@
  *      - bwssytems
  *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi;
+
+import java.io.IOException;
+
+import com.github.mob41.blapi.mac.Mac;
 
 /**
- * Packet interface<br>
- * <br>
- * This is probably useless...
+ * This is a legacy class for backward compatibility with RM2Device.
  * 
+ * Please consider using RM2Device instead of RMDevice.
+ * 
+ * @deprecated
  * @author Anthony
  *
  */
-public interface Packet {
+public class RMDevice extends RM2Device {
 
-    /**
-     * Returns this packet's final compiled data
-     * 
-     * @return
-     */
-    public byte[] getData();
+    public RMDevice(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
+        super(deviceType, deviceDesc, host, mac);
+    }
+
+    public RMDevice(String host, Mac mac) throws IOException {
+        super(host, mac);
+    }
 
 }

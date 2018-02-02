@@ -26,23 +26,56 @@
  *      - bwssytems
  *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.cmd.rm2;
 
-/**
- * Packet interface<br>
- * <br>
- * This is probably useless...
- * 
- * @author Anthony
- *
- */
-public interface Packet {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
+
+public final class SendDataCmdPayload implements CmdPayload {
+
+    private final Payload payload;
+
+    private final byte[] payloadBytes;
+
+    private final byte[] dataBytes;
+
+    public SendDataCmdPayload(byte[] irRfCodeData) {
+        this.dataBytes = irRfCodeData;
+
+        payloadBytes = new byte[4 + dataBytes.length];
+        payloadBytes[0] = 2;
+
+        for (int i = 4; i < dataBytes.length; i++) {
+            payloadBytes[i] = dataBytes[i - 4];
+        }
+
+        payload = new Payload() {
+
+            @Override
+            public byte[] getData() {
+                return payloadBytes;
+            }
+
+        };
+    }
 
     /**
-     * Returns this packet's final compiled data
+     * Returns the IR/RF code data to be sent
      * 
-     * @return
+     * @return IR/RF code data
      */
-    public byte[] getData();
+    public byte[] getData() {
+        return dataBytes;
+    }
+
+    @Override
+    public byte getCommand() {
+        return 0x6a;
+    }
+
+    @Override
+    public Payload getPayload() {
+        return payload;
+    }
 
 }

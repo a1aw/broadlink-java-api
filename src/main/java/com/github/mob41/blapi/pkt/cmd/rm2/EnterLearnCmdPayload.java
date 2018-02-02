@@ -26,23 +26,39 @@
  *      - bwssytems
  *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.cmd.rm2;
 
-/**
- * Packet interface<br>
- * <br>
- * This is probably useless...
- * 
- * @author Anthony
- *
- */
-public interface Packet {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
 
-    /**
-     * Returns this packet's final compiled data
-     * 
-     * @return
-     */
-    public byte[] getData();
+public final class EnterLearnCmdPayload implements CmdPayload {
+
+    private final Payload payload;
+
+    private final byte[] payloadBytes;
+
+    public EnterLearnCmdPayload() {
+        payloadBytes = new byte[16];
+        payloadBytes[0] = 3;
+
+        payload = new Payload() {
+
+            @Override
+            public byte[] getData() {
+                return payloadBytes;
+            }
+
+        };
+    }
+
+    @Override
+    public byte getCommand() {
+        return 0x6a;
+    }
+
+    @Override
+    public Payload getPayload() {
+        return payload;
+    }
 
 }

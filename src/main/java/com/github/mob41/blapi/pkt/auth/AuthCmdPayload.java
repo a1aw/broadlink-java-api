@@ -26,23 +26,27 @@
  *      - bwssytems
  *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
-package com.github.mob41.blapi.pkt;
+package com.github.mob41.blapi.pkt.auth;
 
-/**
- * Packet interface<br>
- * <br>
- * This is probably useless...
- * 
- * @author Anthony
- *
- */
-public interface Packet {
+import com.github.mob41.blapi.pkt.CmdPayload;
+import com.github.mob41.blapi.pkt.Payload;
 
-    /**
-     * Returns this packet's final compiled data
-     * 
-     * @return
-     */
-    public byte[] getData();
+public class AuthCmdPayload implements CmdPayload {
+
+    private final AuthPayload authPayload;
+
+    public AuthCmdPayload(byte[] devId, byte[] devName) {
+        authPayload = new AuthPayload(devId, devName);
+    }
+
+    @Override
+    public byte getCommand() {
+        return 0x65;
+    }
+
+    @Override
+    public Payload getPayload() {
+        return authPayload;
+    }
 
 }

@@ -1,7 +1,7 @@
 <!--
     MIT License
    
-    Copyright (c) 2017 Anthony Law
+    Copyright (c) 2016, 2017 Anthony Law
    
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,11 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+   
+    Contributors:
+         - Anthony Law (mob41) - Initial API Implementation
+         - bwssytems
+         - Christian Fischer (computerlyrik)
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -27,7 +32,7 @@
 
   <groupId>com.github.mob41.blapi</groupId>
   <artifactId>broadlink-java-api</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>broadlink-java-api</name>
@@ -79,7 +84,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -87,6 +92,12 @@
     	<artifactId>slf4j-api</artifactId>
     	<version>1.7.22</version>
     </dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>1.7.22</version>
+		<scope>test</scope>
+	</dependency>
   </dependencies>
   
   <!--
