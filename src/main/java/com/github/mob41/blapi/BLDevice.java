@@ -762,6 +762,8 @@ public abstract class BLDevice implements Closeable {
 
         if (debug)
             log.debug("End of device discovery");
+        
+        sock.close();
 
         return out;
     }
