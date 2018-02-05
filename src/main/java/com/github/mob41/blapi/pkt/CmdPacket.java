@@ -49,6 +49,7 @@ public class CmdPacket implements Packet {
 
     private static final int DEFAULT_BYTES_SIZE = 0x38; // 56-bytes
 
+    private final byte[] headerdata;
     private final byte[] data;
 
     /**
@@ -78,44 +79,47 @@ public class CmdPacket implements Packet {
         byte[] payload = cmdPayload.getPayload().getData();
 
         log.debug("Constructor CmdPacket starts");
-        log.trace("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
+        log.debug("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
 
         count = (count + 1) & 0xffff; // increased by the sendPkt()
 
         log.trace("New count: " + count + " (added by 1)");
         log.trace("Creating byte array with data");
 
-        data = new byte[DEFAULT_BYTES_SIZE + payload.length];
+        headerdata = new byte[DEFAULT_BYTES_SIZE];
+        for (int i = 0; i < headerdata.length; i++) {
+            headerdata[i] = 0x00;
+        }
 
-        data[0x00] = 0x5a;
-        data[0x01] = (byte) 0xa5;
-        data[0x02] = (byte) 0xaa;
-        data[0x03] = 0x55;
-        data[0x04] = 0x5a;
-        data[0x05] = (byte) 0xa5;
-        data[0x06] = (byte) 0xaa;
-        data[0x07] = 0x55;
+        headerdata[0x00] = 0x5a;
+        headerdata[0x01] = (byte) 0xa5;
+        headerdata[0x02] = (byte) 0xaa;
+        headerdata[0x03] = 0x55;
+        headerdata[0x04] = 0x5a;
+        headerdata[0x05] = (byte) 0xa5;
+        headerdata[0x06] = (byte) 0xaa;
+        headerdata[0x07] = 0x55;
 
-        data[0x24] = 0x2a;
-        data[0x25] = 0x27;
-        data[0x26] = cmd;
+        headerdata[0x24] = 0x2a;
+        headerdata[0x25] = 0x27;
+        headerdata[0x26] = cmd;
 
-        data[0x28] = (byte) (count & 0xff);
-        data[0x29] = (byte) (count >> 8);
+        headerdata[0x28] = (byte) (count & 0xff);
+        headerdata[0x29] = (byte) (count >> 8);
 
         byte[] mac = targetMac.getMac();
 
-        data[0x2a] = mac[0];
-        data[0x2b] = mac[1];
-        data[0x2c] = mac[2];
-        data[0x2d] = mac[3];
-        data[0x2e] = mac[4];
-        data[0x2f] = mac[5];
+        headerdata[0x2a] = mac[0];
+        headerdata[0x2b] = mac[1];
+        headerdata[0x2c] = mac[2];
+        headerdata[0x2d] = mac[3];
+        headerdata[0x2e] = mac[4];
+        headerdata[0x2f] = mac[5];
 
-        data[0x30] = id[0];
-        data[0x31] = id[1];
-        data[0x32] = id[2];
-        data[0x33] = id[3];
+        headerdata[0x30] = id[0];
+        headerdata[0x31] = id[1];
+        headerdata[0x32] = id[2];
+        headerdata[0x33] = id[3];
 
         log.debug("Running checksum for headers");
 
@@ -125,8 +129,8 @@ public class CmdPacket implements Packet {
             checksum &= 0xffff;
         }
 
-        data[0x34] = (byte) (checksum & 0xff);
-        data[0x35] = (byte) (checksum >> 8);
+        headerdata[0x34] = (byte) (checksum & 0xff);
+        headerdata[0x35] = (byte) (checksum >> 8);
 
         log.trace("Headers checksum: " + Integer.toHexString(checksum));
         log.trace("Creating AES instance with provided key {}, iv {}", key, iv);
@@ -139,10 +143,16 @@ public class CmdPacket implements Packet {
             payload = aes.encrypt(payload);
 //            BLDevice.printBytes(payload);
 
-            log.trace("Encrypted. len=" + payload.length);
+            log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {
             log.error("Cannot encrypt payload! Aborting", e);
             throw new BLApiRuntimeException("Cannot encrypt payload", e);
+        }
+
+        data = new byte[DEFAULT_BYTES_SIZE + payload.length];
+        
+        for (int i = 0; i < headerdata.length; i++) {
+            data[i] = headerdata[i];
         }
 
         for (int i = 0; i < payload.length; i++) {
