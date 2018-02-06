@@ -403,9 +403,9 @@ public abstract class BLDevice implements Closeable {
             log.debug("encDataLen=" + encData.length);
 
         if (encData.length % 16 != 0) {
-            log.warn("TODO: Incompatible decryption with non-16 multiple bytes. Forcing to have 1024 bytes");
+            log.warn("TODO: Incompatible decryption with non-16 multiple bytes. Forcing to have 2048 bytes");
 
-            byte[] newBytes = new byte[1024];
+            byte[] newBytes = new byte[2048];
             for (int i = 0; i < encData.length; i++) {
                 newBytes[i] = encData[i];
             }
