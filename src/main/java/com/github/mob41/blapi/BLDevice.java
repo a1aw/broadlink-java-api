@@ -377,16 +377,15 @@ public abstract class BLDevice implements Closeable {
             log.debug("Authentication method starts");
         log.debug("Constructing AuthCmdPayload");
 
-        AuthCmdPayload sendPayload = new AuthCmdPayload(AuthPayload.getDefaultDeviceId(),
-                new byte[] { (int) 'T', (int) 'e', (int) 's', (int) 't', (int) ' ', (int) ' ', (int) '1' });
+        AuthCmdPayload sendPayload = new AuthCmdPayload();
 
         if (debug)
             log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
                     + " len=" + sendPayload.getPayload().getData().length);
 
-        printBytes(sendPayload.getPayload().getData());
+//        printBytes(sendPayload.getPayload().getData());
 
-        DatagramPacket sendPack = sendCmdPkt(10000, 88, sendPayload);
+        DatagramPacket sendPack = sendCmdPkt(10000, 2048, sendPayload);
 
         if (debug)
             log.debug("Received datagram");

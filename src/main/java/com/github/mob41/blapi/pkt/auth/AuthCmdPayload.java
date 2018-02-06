@@ -39,6 +39,10 @@ public class AuthCmdPayload implements CmdPayload {
         authPayload = new AuthPayload(devId, devName);
     }
 
+    public AuthCmdPayload() {
+        authPayload = new AuthPayload();
+    }
+
     @Override
     public byte getCommand() {
         return 0x65;
