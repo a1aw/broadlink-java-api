@@ -83,8 +83,8 @@ public class CmdPacket implements Packet {
 
         count = (count + 1) & 0xffff; // increased by the sendPkt()
 
-        log.trace("New count: " + count + " (added by 1)");
-        log.trace("Creating byte array with data");
+        log.debug("New count: " + count + " (added by 1)");
+        log.debug("Creating byte array with data");
 
         headerdata = new byte[DEFAULT_BYTES_SIZE];
         for (int i = 0; i < headerdata.length; i++) {
@@ -132,8 +132,8 @@ public class CmdPacket implements Packet {
         headerdata[0x34] = (byte) (checksum & 0xff);
         headerdata[0x35] = (byte) (checksum >> 8);
 
-        log.trace("Headers checksum: " + Integer.toHexString(checksum));
-        log.trace("Creating AES instance with provided key {}, iv {}", key, iv);
+        log.debug("Headers checksum: " + Integer.toHexString(checksum));
+        log.debug("Creating AES instance with provided key {}, iv {}", key, iv);
 
         AES aes = new AES(iv, key);
 
@@ -167,7 +167,7 @@ public class CmdPacket implements Packet {
             checksum &= 0xffff;
         }
 
-        log.trace("Whole packet checksum: " + Integer.toHexString(checksum));
+        log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
 
         data[0x20] = (byte) (checksum & 0xff);
         data[0x21] = (byte) (checksum >> 8);
