@@ -355,11 +355,11 @@ public abstract class BLDevice implements Closeable {
     // TODO: remove this
     // Development purpose
     public static void printBytes(byte[] data) {
-        String str = "";
-        for (int i = 0; i < data.length; i++) {
-            str += Integer.toHexString(data[i]) + ",";
-        }
-        log.debug("printBytes: {}", str);
+//        String str = "";
+//       for (int i = 0; i < data.length; i++) {
+//            str += Integer.toHexString(data[i]) + ",";
+//        }
+        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(data));
     }
 
     /**
