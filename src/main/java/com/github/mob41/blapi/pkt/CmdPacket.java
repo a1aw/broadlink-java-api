@@ -141,7 +141,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aes.encrypt(payload);
-//            BLDevice.printBytes(payload);
+            BLDevice.printBytes(payload);
 
             log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {
