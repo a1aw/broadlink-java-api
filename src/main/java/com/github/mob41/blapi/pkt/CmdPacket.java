@@ -124,7 +124,9 @@ public class CmdPacket implements Packet {
         // pad the payload for AES encryption
         byte[] payloadPad = null;
         if(payload.length > 0) {
-          int numpad=(payload.length/16+1)*16;
+          int numpad = payload.length % 16;
+          if(numpad == 0)
+        	  numpad =16;
           payloadPad = new byte[payload.length+numpad];
           for(int i = 0; i < payloadPad.length; i++) {
         	  if(i < payload.length)
