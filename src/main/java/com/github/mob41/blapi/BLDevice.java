@@ -359,7 +359,7 @@ public abstract class BLDevice implements Closeable {
         for (int i = 0; i < data.length; i++) {
             str += Integer.toHexString(data[i]) + ",";
         }
-        log.trace("printBytes: {}", str);
+        log.debug("printBytes: {}", str);
     }
 
     /**
@@ -383,7 +383,7 @@ public abstract class BLDevice implements Closeable {
             log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
                     + " len=" + sendPayload.getPayload().getData().length);
 
-//        printBytes(sendPayload.getPayload().getData());
+        printBytes(sendPayload.getPayload().getData());
 
         DatagramPacket sendPack = sendCmdPkt(10000, 2048, sendPayload);
 
@@ -414,6 +414,8 @@ public abstract class BLDevice implements Closeable {
 
         if (debug)
             log.debug("Creating AES instance with initial iv, key");
+        
+        printBytes(encData);
 
         AES aes = new AES(INITIAL_IV, INITIAL_KEY);
 
