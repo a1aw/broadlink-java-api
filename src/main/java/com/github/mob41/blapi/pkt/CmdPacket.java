@@ -126,7 +126,7 @@ public class CmdPacket implements Packet {
         if(payload.length > 0) {
           int numpad = payload.length % 16;
           if(numpad == 0)
-        	  numpad =16;
+        	  numpad = 16;
           payloadPad = new byte[payload.length+numpad];
           for(int i = 0; i < payloadPad.length; i++) {
         	  if(i < payload.length)
@@ -143,9 +143,6 @@ public class CmdPacket implements Packet {
             checksum += payloadPad[i];
             checksum &= 0xffff;
         }
-
-        headerdata[0x34] = (byte) (checksum & 0xff);
-        headerdata[0x35] = (byte) (checksum >> 8);
 
         log.debug("Headers checksum: " + Integer.toHexString(checksum));
         log.debug("Creating AES instance with provided key {}, iv {}", key, iv);
@@ -169,6 +166,9 @@ public class CmdPacket implements Packet {
         for (int i = 0; i < headerdata.length; i++) {
             data[i] = headerdata[i];
         }
+
+        data[0x34] = (byte) (checksum & 0xff);
+        data[0x35] = (byte) (checksum >> 8);
 
         for (int i = 0; i < payload.length; i++) {
             data[i + DEFAULT_BYTES_SIZE] = payload[i];
