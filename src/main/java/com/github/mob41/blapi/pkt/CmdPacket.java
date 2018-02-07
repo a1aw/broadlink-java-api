@@ -121,11 +121,24 @@ public class CmdPacket implements Packet {
         headerdata[0x32] = id[2];
         headerdata[0x33] = id[3];
 
+        // pad the payload for AES encryption
+        byte[] payloadPad = null;
+        if(payload.length > 0) {
+          int numpad=(payload.length/16+1)*16;
+          payloadPad = new byte[payload.length+numpad];
+          for(int i = 0; i < payloadPad.length; i++) {
+        	  if(i < payload.length)
+        		  payloadPad[i] = payload[i];
+        	  else
+        		  payloadPad[i] = 0x00;
+          }
+        }
+
         log.debug("Running checksum for headers");
 
         int checksum = 0xbeaf;
-        for (int i = 0; i < payload.length; i++) {
-            checksum += payload[i];
+        for (int i = 0; i < payloadPad.length; i++) {
+            checksum += payloadPad[i];
             checksum &= 0xffff;
         }
 
@@ -140,7 +153,7 @@ public class CmdPacket implements Packet {
         try {
             log.debug("Encrypting payload");
 
-            payload = aes.encrypt(payload);
+            payload = aes.encrypt(payloadPad);
             BLDevice.printBytes(payload);
 
             log.debug("Encrypted. len=" + payload.length);
