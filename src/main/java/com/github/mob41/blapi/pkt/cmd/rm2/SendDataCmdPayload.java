@@ -43,7 +43,7 @@ public final class SendDataCmdPayload implements CmdPayload {
         this.dataBytes = irRfCodeData;
 
         payloadBytes = new byte[4 + dataBytes.length];
-        payloadBytes[0] = 2;
+        payloadBytes[0] = 0x02;
 
         for (int i = 4; i < dataBytes.length; i++) {
             payloadBytes[i] = dataBytes[i - 4];

@@ -39,7 +39,7 @@ public final class EnterLearnCmdPayload implements CmdPayload {
 
     public EnterLearnCmdPayload() {
         payloadBytes = new byte[16];
-        payloadBytes[0] = 3;
+        payloadBytes[0] = 0x03;
 
         payload = new Payload() {
 

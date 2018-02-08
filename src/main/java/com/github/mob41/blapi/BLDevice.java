@@ -49,7 +49,6 @@ import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Packet;
 import com.github.mob41.blapi.pkt.auth.AES;
 import com.github.mob41.blapi.pkt.auth.AuthCmdPayload;
-import com.github.mob41.blapi.pkt.auth.AuthPayload;
 import com.github.mob41.blapi.pkt.dis.DiscoveryPacket;
 
 /**
@@ -352,16 +351,6 @@ public abstract class BLDevice implements Closeable {
         return deviceDesc;
     }
 
-    // TODO: remove this
-    // Development purpose
-    public static void printBytes(byte[] data) {
-//        String str = "";
-//       for (int i = 0; i < data.length; i++) {
-//            str += Integer.toHexString(data[i]) + ",";
-//        }
-        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(data));
-    }
-
     /**
      * Authenticates with the broadlink device, before any other control
      * commands
@@ -371,63 +360,56 @@ public abstract class BLDevice implements Closeable {
      *             If I/O goes wrong
      */
     public boolean auth() throws IOException {
-        boolean debug = log.isDebugEnabled();
-
-        if (debug)
-            log.debug("Authentication method starts");
+        log.debug("Authentication method starts");
         log.debug("Constructing AuthCmdPayload");
 
         AuthCmdPayload sendPayload = new AuthCmdPayload();
-
-        if (debug)
-            log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
+        log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
                     + " len=" + sendPayload.getPayload().getData().length);
 
-        printBytes(sendPayload.getPayload().getData());
+        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(sendPayload.getPayload().getData()));
 
         DatagramPacket sendPack = sendCmdPkt(10000, 2048, sendPayload);
 
-        if (debug)
-            log.debug("Received datagram");
+        log.debug("Received datagram");
 
         byte[] data = sendPack.getData();
 
-        printBytes(data);
+        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(data));
 
-        if (debug)
-            log.debug("Getting encrypted data from 0x38 to the end");
+        log.debug("Getting encrypted data from 0x38 to the end");
 
         byte[] encData = subbytes(data, 0x38, data.length);
 
-        if (debug)
-            log.debug("encDataLen=" + encData.length);
+        log.debug("encDataLen=" + encData.length);
 
-        if (encData.length % 16 != 0) {
-            log.warn("TODO: Incompatible decryption with non-16 multiple bytes. Forcing to have 2048 bytes");
-
-            byte[] newBytes = new byte[2048];
-            for (int i = 0; i < encData.length; i++) {
-                newBytes[i] = encData[i];
-            }
-            encData = newBytes;
+        byte[] newBytes = null;
+        if(encData.length > 0) {
+          int numpad = encData.length % 16;
+          if(numpad == 0)
+        	  numpad = 16;
+          newBytes = new byte[encData.length+numpad];
+          for(int i = 0; i < newBytes.length; i++) {
+        	  if(i < encData.length)
+        		  newBytes[i] = encData[i];
+        	  else
+        		  newBytes[i] = 0x00;
+          }
         }
 
-        if (debug)
-            log.debug("Creating AES instance with initial iv, key");
+        log.debug("Creating AES instance with initial iv, key");
         
-        printBytes(encData);
+        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(newBytes));
 
         AES aes = new AES(INITIAL_IV, INITIAL_KEY);
 
         byte[] payload = null;
         try {
-            if (debug)
-                log.debug("Decrypting encrypted data");
+            log.debug("Decrypting encrypted data");
 
-            payload = aes.decrypt(encData);
+            payload = aes.decrypt(newBytes);
 
-            if (debug)
-                log.debug("Decrypted. len=" + payload.length);
+            log.debug("Decrypted. len=" + payload.length);
 
         } catch (Exception e) {
             log.error("Received datagram decryption error. Aborting method", e);
@@ -436,8 +418,7 @@ public abstract class BLDevice implements Closeable {
 
         log.debug("Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
 
-        if (debug)
-            log.debug("Getting key from 0x04 to 0x14");
+        log.debug("Getting key from 0x04 to 0x14");
 
         key = subbytes(payload, 0x04, 0x14);
 
@@ -448,15 +429,13 @@ public abstract class BLDevice implements Closeable {
             return false;
         }
 
-        if (debug)
-            log.debug("Getting ID from 0x00 to 0x04");
+        log.debug("Getting ID from 0x00 to 0x04");
 
         id = subbytes(payload, 0x00, 0x04);
 
         log.debug("Packet received id bytes: " + DatatypeConverter.printHexBinary(id));
 
-        if (debug)
-            log.debug("ID len=" + id.length);
+        log.debug("ID len=" + id.length);
         log.debug("End of authentication method");
 
         return true;
@@ -550,7 +529,7 @@ public abstract class BLDevice implements Closeable {
     public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize,
             CmdPayload cmdPayload) throws IOException {
         CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
-        printBytes(cmdPkt.getData());
+        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
         return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, bufSize);
     }
 

@@ -28,10 +28,11 @@
  *******************************************************************************/
 package com.github.mob41.blapi.pkt;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
@@ -136,7 +137,7 @@ public class CmdPacket implements Packet {
           }
         }
 
-        log.debug("Running checksum for headers");
+        log.debug("Running checksum for un-encrypted payload");
 
         int checksum = 0xbeaf;
         for (int i = 0; i < payloadPad.length; i++) {
@@ -144,7 +145,7 @@ public class CmdPacket implements Packet {
             checksum &= 0xffff;
         }
 
-        log.debug("Headers checksum: " + Integer.toHexString(checksum));
+        log.debug("Un-encrypted payload checksum: " + Integer.toHexString(checksum));
         log.debug("Creating AES instance with provided key {}, iv {}", key, iv);
 
         AES aes = new AES(iv, key);
@@ -153,7 +154,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aes.encrypt(payloadPad);
-            BLDevice.printBytes(payload);
+            log.debug("printBytes: {}", DatatypeConverter.printHexBinary(payload));
 
             log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {

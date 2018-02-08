@@ -45,7 +45,7 @@ public final class RMTempCmdPayload implements CmdPayload {
             @Override
             public byte[] getData() {
                 byte[] b = new byte[16];
-                b[0] = 1;
+                b[0] = 0x01;
                 return b;
             }
 

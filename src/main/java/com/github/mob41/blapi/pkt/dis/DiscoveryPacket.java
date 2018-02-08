@@ -69,7 +69,7 @@ public class DiscoveryPacket implements Packet {
 
     public DiscoveryPacket(InetAddress localIpAddr, int sourcePort, Calendar cal, TimeZone tz) {
         log.debug("DiscoveryPacket constructor start");
-        log.trace("cal=" + cal.getTimeInMillis() + " tz=" + tz.getID());
+        log.debug("cal=" + cal.getTimeInMillis() + " tz=" + tz.getID());
         if (localIpAddr == null) {
             log.debug("localIpAddr is null. Calling InetAddress.getLocalHost");
             try {
@@ -84,8 +84,8 @@ public class DiscoveryPacket implements Packet {
         int rawOffset = tz.getRawOffset();
         int tzOffset = rawOffset / 3600;
 
-        log.trace("Raw offset: " + rawOffset);
-        log.trace("Calculated offset: getRawOffset/1000/-3600=" + tzOffset);
+        log.debug("Raw offset: " + rawOffset);
+        log.debug("Calculated offset: getRawOffset/1000/-3600=" + tzOffset);
 
         int min = cal.get(Calendar.MINUTE);
         int hr = cal.get(Calendar.HOUR);
@@ -103,9 +103,9 @@ public class DiscoveryPacket implements Packet {
         int dayOfMn = cal.get(Calendar.DAY_OF_MONTH); // Day of month
         int month = cal.get(Calendar.MONTH) + 1; // Month
 
-        log.trace("min=" + min + " hr=" + hr);
-        log.trace("year=" + year + " dayOfWk=" + dayOfWk);
-        log.trace("dayOfMn=" + dayOfMn + " month=" + month);
+        log.debug("min=" + min + " hr=" + hr);
+        log.debug("year=" + year + " dayOfWk=" + dayOfWk);
+        log.debug("dayOfMn=" + dayOfMn + " month=" + month);
 
         byte[] ipAddrBytes = localIpAddr.getAddress();
 
