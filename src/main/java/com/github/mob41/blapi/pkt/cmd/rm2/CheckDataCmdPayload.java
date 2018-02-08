@@ -39,7 +39,7 @@ public final class CheckDataCmdPayload implements CmdPayload {
 
     public CheckDataCmdPayload() {
         payloadBytes = new byte[16];
-        payloadBytes[0] = 4;
+        payloadBytes[0] = 0x04;
 
         payload = new Payload() {
 
