@@ -360,28 +360,28 @@ public abstract class BLDevice implements Closeable {
      *             If I/O goes wrong
      */
     public boolean auth() throws IOException {
-        log.debug("Authentication method starts");
-        log.debug("Constructing AuthCmdPayload");
+        log.debug("auth Authentication method starts");
+        log.debug("auth Constructing AuthCmdPayload");
 
         AuthCmdPayload sendPayload = new AuthCmdPayload();
-        log.debug("Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
+        log.debug("auth Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
                     + " len=" + sendPayload.getPayload().getData().length);
 
-        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(sendPayload.getPayload().getData()));
+        log.debug("auth AuthPayload initial bytes to send: {}", DatatypeConverter.printHexBinary(sendPayload.getPayload().getData()));
 
         DatagramPacket sendPack = sendCmdPkt(10000, 2048, sendPayload);
 
-        log.debug("Received datagram");
+        log.debug("auth Received initial datagram");
 
         byte[] data = sendPack.getData();
 
-        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(data));
+        log.debug("auth recv data bytes after initial req: {}", DatatypeConverter.printHexBinary(data));
 
-        log.debug("Getting encrypted data from 0x38 to the end");
+        log.debug("auth Getting encrypted data from 0x38 to the end");
 
         byte[] encData = subbytes(data, 0x38, data.length);
 
-        log.debug("encDataLen=" + encData.length);
+        log.debug("auth encDataLen=" + encData.length);
 
         byte[] newBytes = null;
         if(encData.length > 0) {
@@ -397,46 +397,46 @@ public abstract class BLDevice implements Closeable {
           }
         }
 
-        log.debug("Creating AES instance with initial iv, key");
-        
-        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(newBytes));
+        log.debug("auth padded encoded bytes from initial req: {}", DatatypeConverter.printHexBinary(newBytes));
+ 
+        log.debug("auth Creating AES instance with initial iv, key");
 
         AES aes = new AES(INITIAL_IV, INITIAL_KEY);
 
         byte[] payload = null;
         try {
-            log.debug("Decrypting encrypted data");
+            log.debug("auth Decrypting encrypted data");
 
             payload = aes.decrypt(newBytes);
 
-            log.debug("Decrypted. len=" + payload.length);
+            log.debug("auth Decrypted. len=" + payload.length);
 
         } catch (Exception e) {
-            log.error("Received datagram decryption error. Aborting method", e);
+            log.error("auth Received datagram decryption error. Aborting method", e);
             return false;
         }
 
-        log.debug("Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
+        log.debug("auth Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
 
-        log.debug("Getting key from 0x04 to 0x14");
+        log.debug("auth Getting key from 0x04 to 0x14");
 
         key = subbytes(payload, 0x04, 0x14);
 
-        log.debug("Packet received key bytes: " + DatatypeConverter.printHexBinary(key));
+        log.debug("auth Packet received key bytes: " + DatatypeConverter.printHexBinary(key));
 
         if (key.length % 16 != 0) {
-            log.error("Received key len is not a multiple of 16! Aborting");
+            log.error("auth Received key len is not a multiple of 16! Aborting");
             return false;
         }
 
-        log.debug("Getting ID from 0x00 to 0x04");
+        log.debug("auth Getting ID from 0x00 to 0x04");
 
         id = subbytes(payload, 0x00, 0x04);
 
-        log.debug("Packet received id bytes: " + DatatypeConverter.printHexBinary(id));
+        log.debug("auth Packet received id bytes: " + DatatypeConverter.printHexBinary(id));
 
-        log.debug("ID len=" + id.length);
-        log.debug("End of authentication method");
+        log.debug("auth ID len=" + id.length);
+        log.debug("auth End of authentication method");
 
         return true;
     }
