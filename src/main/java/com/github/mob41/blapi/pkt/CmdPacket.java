@@ -154,7 +154,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aes.encrypt(payloadPad);
-            log.debug("printBytes: {}", DatatypeConverter.printHexBinary(payload));
+            log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
 
             log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {
