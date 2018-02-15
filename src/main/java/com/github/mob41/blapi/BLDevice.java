@@ -529,7 +529,7 @@ public abstract class BLDevice implements Closeable {
     public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize,
             CmdPayload cmdPayload) throws IOException {
         CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
-        log.debug("printBytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
+        log.debug("sendCmdPkt - Send Command Packet bytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
         return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, bufSize);
     }
 
@@ -957,7 +957,7 @@ public abstract class BLDevice implements Closeable {
         long elapsed;
         while ((elapsed = System.currentTimeMillis() - startTime) < timeout) {
             try {
-                sock.send(sendpack);
+//                sock.send(sendpack);
                 sock.setSoTimeout(1000);
                 sock.receive(recepack);
                 break;
