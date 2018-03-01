@@ -374,6 +374,11 @@ public abstract class BLDevice implements Closeable {
         log.debug("auth Received initial datagram");
 
         byte[] data = recvPack.getData();
+        
+        if(data.length <= 0) {
+            log.error("auth Received 0 bytes on initial request.");
+            return false;
+        }
 
         log.debug("auth recv data bytes (" + data.length +") after initial req: {}", DatatypeConverter.printHexBinary(data));
 
