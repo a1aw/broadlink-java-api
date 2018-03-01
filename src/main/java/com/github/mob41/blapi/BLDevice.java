@@ -369,17 +369,17 @@ public abstract class BLDevice implements Closeable {
 
         log.debug("auth AuthPayload initial bytes to send: {}", DatatypeConverter.printHexBinary(sendPayload.getPayload().getData()));
 
-        DatagramPacket sendPack = sendCmdPkt(10000, 2048, sendPayload);
+        DatagramPacket recvPack = sendCmdPkt(10000, 2048, sendPayload);
 
         log.debug("auth Received initial datagram");
 
-        byte[] data = sendPack.getData();
+        byte[] data = recvPack.getData();
 
         log.debug("auth recv data bytes after initial req: {}", DatatypeConverter.printHexBinary(data));
 
         log.debug("auth Getting encrypted data from 0x38 to the end");
 
-        byte[] encData = subbytesTillNull(data, 0x38);
+        byte[] encData = subbytes(data, 0x38, data.length);
 
         log.debug("auth encDataLen=" + encData.length);
 
@@ -827,6 +827,33 @@ public abstract class BLDevice implements Closeable {
     }
 
     /**
+     * Misc: Pull bytes out from end of array until a non null is detected
+     * 
+     * @param data
+     *            Original data
+     * @param offset
+     *            Starting offset
+     * @return Result byte array
+     */
+    public static byte[] removeNullsFromEnd(byte[] data, int offset) {
+    	int new_length = 0;
+        for (int i = data.length - 1; i >= offset; i--) {
+            if (data[i] != 0x00) { // null
+            	new_length = i + 1;
+                break;
+            }
+        }
+
+        byte[] out = new byte[new_length];
+
+        for (int x = offset; x < new_length; x++) {
+            out[x - offset] = data[x];
+        }
+
+        return out;
+    }
+
+    /**
      * Misc: Pull bytes out from an array until a NULL (0) is detected
      * 
      * @param data
@@ -968,6 +995,7 @@ public abstract class BLDevice implements Closeable {
             }
         }
 
+        recepack.setData(removeNullsFromEnd(recepack.getData(), 0));
         return recepack;
     }
 
