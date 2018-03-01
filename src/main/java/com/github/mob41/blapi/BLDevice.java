@@ -375,7 +375,7 @@ public abstract class BLDevice implements Closeable {
 
         byte[] data = recvPack.getData();
 
-        log.debug("auth recv data bytes after initial req: {}", DatatypeConverter.printHexBinary(data));
+        log.debug("auth recv data bytes (" + data.length +") after initial req: {}", DatatypeConverter.printHexBinary(data));
 
         log.debug("auth Getting encrypted data from 0x38 to the end");
 
@@ -995,6 +995,7 @@ public abstract class BLDevice implements Closeable {
             }
         }
 
+        log.debug("sendPkt - recv data bytes (" + recepack.getData().length +") after initial req: {}", DatatypeConverter.printHexBinary(recepack.getData()));
         recepack.setData(removeNullsFromEnd(recepack.getData(), 0));
         return recepack;
     }
