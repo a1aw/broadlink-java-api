@@ -379,7 +379,7 @@ public abstract class BLDevice implements Closeable {
 
         log.debug("auth Getting encrypted data from 0x38 to the end");
 
-        byte[] encData = subbytes(data, 0x38, data.length);
+        byte[] encData = subbytesTillNull(data, 0x38);
 
         log.debug("auth encDataLen=" + encData.length);
 
