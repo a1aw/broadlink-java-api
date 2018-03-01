@@ -840,9 +840,9 @@ public abstract class BLDevice implements Closeable {
 
         for (int i = offset; i < bytes.size(); i++) {
             if ((bytes.get(i) & 0xff) == 0x00) { // null
-                bytes.add(bytes.get(i));
-            } else {
                 break;
+            } else {
+                bytes.add(bytes.get(i));
             }
         }
 
