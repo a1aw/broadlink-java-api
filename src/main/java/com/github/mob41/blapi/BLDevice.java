@@ -836,20 +836,18 @@ public abstract class BLDevice implements Closeable {
      * @return Result byte array
      */
     public static byte[] subbytesTillNull(byte[] data, int offset) {
-        List<Byte> bytes = new ArrayList<Byte>(data.length);
-
-        for (int i = offset; i < bytes.size(); i++) {
-            if ((bytes.get(i) & 0xff) == 0x00) { // null
+    	int new_length = 0;
+        for (int i = offset; i < data.length; i++) {
+            if (data[i] == 0x00) { // null
+            	new_length = i;
                 break;
-            } else {
-                bytes.add(bytes.get(i));
             }
         }
 
-        byte[] out = new byte[bytes.size()];
+        byte[] out = new byte[new_length];
 
-        for (int i = 0; i < bytes.size(); i++) {
-            out[i] = data[i];
+        for (int x = offset; x < new_length; x++) {
+            out[x - offset] = data[x];
         }
 
         return out;
