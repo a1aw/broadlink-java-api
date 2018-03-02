@@ -285,7 +285,7 @@ public abstract class BLDevice implements Closeable {
         this.host = host;
         this.mac = mac;
 
-        sock = new DatagramSocket(0);
+        sock = new DatagramSocket(80);
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
     }
@@ -972,7 +972,7 @@ public abstract class BLDevice implements Closeable {
      */
     public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress sourceIpAddr, int sourcePort,
             InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
-        // sock.bind(new InetSocketAddress(ipAddr, sourcePort));
+        // sock.bind(new InetSocketAddress(sourceipAddr, sourcePort));
 
         byte[] data = pkt.getData();
         log.debug("DESTIP: " + destIpAddr.getHostAddress());
