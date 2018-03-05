@@ -105,15 +105,28 @@ public class SP2Device extends BLDevice {
             }
 
         });
-        byte[] data = packet.getData();
+        byte[] encData = packet.getData();
 
-        log.debug("Packet received bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("Packet received bytes: " + DatatypeConverter.printHexBinary(encData));
 
-        int err = data[0x22] | (data[0x23] << 8);
+        int err = encData[0x22] | (encData[0x23] << 8);
 
         if (err == 0) {
             AES aes = new AES(getIv(), getKey());
-            byte[] pl = aes.decrypt(data);
+            byte[] newBytes = null;
+            if(encData.length > 0) {
+              int numpad = encData.length % 16;
+              if(numpad == 0)
+            	  numpad = 16;
+              newBytes = new byte[encData.length+numpad];
+              for(int i = 0; i < newBytes.length; i++) {
+            	  if(i < encData.length)
+            		  newBytes[i] = encData[i];
+            	  else
+            		  newBytes[i] = 0x00;
+              }
+            }
+            byte[] pl = aes.decrypt(newBytes);
             return pl[0x4] == 1 ? true : false;
         } else {
             log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
