@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -285,9 +286,10 @@ public abstract class BLDevice implements Closeable {
         this.host = host;
         this.mac = mac;
 
-        sock = new DatagramSocket(80);
+        sock = new DatagramSocket(0);
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
+        sock.bind(new InetSocketAddress("0.0.0.0", 0));
     }
 
     /**
@@ -934,6 +936,7 @@ public abstract class BLDevice implements Closeable {
      */
     public static DatagramPacket sendPkt(Packet pkt, InetAddress sourceIpAddr, int sourcePort, InetAddress destIpAddr,
             int destPort, int timeout, int bufSize) throws IOException {
+    	log.debug("sendPkt - call with create socket for: " + sourceIpAddr.getHostAddress() + " and port " + sourcePort);
         DatagramSocket sock = new DatagramSocket(sourcePort, sourceIpAddr);
 
         sock.setBroadcast(true);
@@ -972,7 +975,8 @@ public abstract class BLDevice implements Closeable {
      */
     public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress sourceIpAddr, int sourcePort,
             InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
-        // sock.bind(new InetSocketAddress(sourceipAddr, sourcePort));
+    	
+    	log.debug("sendPkt - call with given sock for " + sourceIpAddr.getHostAddress() + " and port " + sourcePort);
 
         byte[] data = pkt.getData();
         log.debug("DESTIP: " + destIpAddr.getHostAddress());
