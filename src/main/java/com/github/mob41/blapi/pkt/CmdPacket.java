@@ -181,6 +181,7 @@ public class CmdPacket implements Packet {
         for (int i = 0; i < data.length; i++) {
             checksum = checksum + (int) data[i];
             checksum = checksum & 0xffff;
+            log.debug("index: " + i + ", checksum: " + checksum);
         }
 
         log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
