@@ -179,7 +179,7 @@ public class CmdPacket implements Packet {
 
         checksum = 0xbeaf;
         for (int i = 0; i < data.length; i++) {
-            checksum += data[i];
+            checksum += (byte) data[i];
             checksum &= 0xffff;
         }
 
