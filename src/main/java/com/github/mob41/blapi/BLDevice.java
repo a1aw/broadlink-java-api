@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -286,10 +285,9 @@ public abstract class BLDevice implements Closeable {
         this.host = host;
         this.mac = mac;
 
-        sock = new DatagramSocket(0, InetAddress.getByName("10.8.0.4"));
+        sock = new DatagramSocket();
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
-        // sock.bind(new InetSocketAddress(0));
     }
 
     /**
