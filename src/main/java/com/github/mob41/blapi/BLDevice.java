@@ -276,7 +276,8 @@ public abstract class BLDevice implements Closeable {
         iv = INITIAL_IV;
         id = new byte[] { 0, 0, 0, 0 };
 
-        pktCount = new Random().nextInt(0xffff);
+        pktCount = 50000;
+        // pktCount = new Random().nextInt(0xffff);
         // pktCount = 0;
 
         this.deviceType = deviceType;
