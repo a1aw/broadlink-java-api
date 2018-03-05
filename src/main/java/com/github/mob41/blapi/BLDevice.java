@@ -76,6 +76,8 @@ public abstract class BLDevice implements Closeable {
     public static final byte[] INITIAL_IV = { 0x56, 0x2e, 0x17, (byte) 0x99, 0x6d, 0x09, 0x3d, 0x28, (byte) 0xdd,
             (byte) 0xb3, (byte) 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58 }; // 16-short
 
+    public static final int DEFAULT_BYTES_SIZE = 0x38; // 56-bytes
+
     // Devices type HEX
 
     public static final short DEV_SP1 = 0x0;
@@ -255,7 +257,12 @@ public abstract class BLDevice implements Closeable {
      * implementation to handle MAC addresses
      */
     private Mac mac;
-
+    
+    /**
+     * Global AES decrytpor
+     */
+    private static AES aes = null;
+    
     /**
      * Constructs a <code>BLDevice</code>, with a device type (constants),
      * hostname and MAC address
@@ -276,9 +283,7 @@ public abstract class BLDevice implements Closeable {
         iv = INITIAL_IV;
         id = new byte[] { 0, 0, 0, 0 };
 
-        pktCount = 50000;
-        // pktCount = new Random().nextInt(0xffff);
-        // pktCount = 0;
+        pktCount = new Random().nextInt(0xffff);
 
         this.deviceType = deviceType;
         this.deviceDesc = deviceDesc;
@@ -289,6 +294,7 @@ public abstract class BLDevice implements Closeable {
         sock = new DatagramSocket();
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
+        aes = new AES(iv, key);
     }
 
     /**
@@ -326,25 +332,11 @@ public abstract class BLDevice implements Closeable {
         return mac;
     }
 
-    /**
-     * Returns the encryption IV of this client
-     * 
-     * @return a byte array containing the IV
-     */
-    public byte[] getIv() {
-        return iv;
-    }
+    public static AES getAes() {
+		return aes;
+	}
 
-    /**
-     * Returns the encryption key of this client
-     * 
-     * @return a byte array containing the key
-     */
-    public byte[] getKey() {
-        return key;
-    }
-
-    /**
+	/**
      * Returns a friendly description of this BLDevice
      * @return a String
      */
@@ -381,39 +373,13 @@ public abstract class BLDevice implements Closeable {
             return false;
         }
 
-        log.debug("auth recv data bytes (" + data.length +") after initial req: {}", DatatypeConverter.printHexBinary(data));
-
-        log.debug("auth Getting encrypted data from 0x38 to the end");
-
-        byte[] encData = subbytes(data, 0x38, data.length);
-
-        log.debug("auth encDataLen=" + encData.length);
-
-        byte[] newBytes = null;
-        if(encData.length > 0) {
-          int numpad = encData.length % 16;
-          if(numpad == 0)
-        	  numpad = 16;
-          newBytes = new byte[encData.length+numpad];
-          for(int i = 0; i < newBytes.length; i++) {
-        	  if(i < encData.length)
-        		  newBytes[i] = encData[i];
-        	  else
-        		  newBytes[i] = 0x00;
-          }
-        }
-
-        log.debug("auth padded encoded bytes from initial req: {}", DatatypeConverter.printHexBinary(newBytes));
- 
-        log.debug("auth Creating AES instance with initial iv, key");
-
-        AES aes = new AES(INITIAL_IV, INITIAL_KEY);
+        log.debug("auth recv encrypted data bytes (" + data.length +") after initial req: {}", DatatypeConverter.printHexBinary(data));
 
         byte[] payload = null;
         try {
             log.debug("auth Decrypting encrypted data");
 
-            payload = aes.decrypt(newBytes);
+            payload = decryptFromDeviceMessage(data);
 
             log.debug("auth Decrypted. len=" + payload.length);
 
@@ -434,6 +400,8 @@ public abstract class BLDevice implements Closeable {
             log.error("auth Received key len is not a multiple of 16! Aborting");
             return false;
         }
+
+        aes = new AES(iv, key);
 
         log.debug("auth Getting ID from 0x00 to 0x04");
 
@@ -886,6 +854,36 @@ public abstract class BLDevice implements Closeable {
         return out;
     }
 
+    /**
+     * Get Payload without header and padded for decryption.
+     * 
+     * @param data the encrypted data message from the device and includes the header
+     * @return Payload bytes without the header and padded to modulo 16
+     */
+    public static byte[] getRawPayloadBytesPadded(byte[] data) {
+        byte[] encData = subbytes(data, BLDevice.DEFAULT_BYTES_SIZE, data.length);
+        byte[] newBytes = null;
+        if(encData.length > 0) {
+          int numpad = encData.length % 16;
+          if(numpad == 0)
+        	  numpad = 16;
+          newBytes = new byte[encData.length+numpad];
+          for(int i = 0; i < newBytes.length; i++) {
+        	  if(i < encData.length)
+        		  newBytes[i] = encData[i];
+        	  else
+        		  newBytes[i] = 0x00;
+          }
+        }
+        return newBytes;
+    }
+    
+    protected static byte[] decryptFromDeviceMessage(byte[] encData) throws Exception {
+    	byte[] encPL = getRawPayloadBytesPadded(encData);
+        byte[] pl = aes.decrypt(encPL);
+        
+    	return pl;
+    }
     /**
      * Picks bytes from start-set to the end-set in a bytes array
      * 
