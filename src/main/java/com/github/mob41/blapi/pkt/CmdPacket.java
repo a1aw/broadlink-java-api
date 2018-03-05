@@ -141,7 +141,7 @@ public class CmdPacket implements Packet {
 
         int checksumpayload = 0xbeaf;
         for (int i = 0; i < payloadPad.length; i++) {
-            checksumpayload = checksumpayload + (int) payloadPad[i];
+            checksumpayload = checksumpayload + Byte.toUnsignedInt(payloadPad[i]);
             checksumpayload = checksumpayload & 0xffff;
         }
 
@@ -179,9 +179,9 @@ public class CmdPacket implements Packet {
 
         int checksumpkt = 0xbeaf;
         for (int i = 0; i < data.length; i++) {
-            checksumpkt = checksumpkt + (int) data[i];
+            checksumpkt = checksumpkt + Byte.toUnsignedInt(data[i]);
             checksumpkt = checksumpkt & 0xffff;
-            log.debug("index: " + i + ", data byte: " + (byte) data[i] + ", checksum: " + checksumpkt);
+            log.debug("index: " + i + ", data byte: " + Byte.toUnsignedInt(data[i]) + ", checksum: " + checksumpkt);
         }
 
         log.debug("Whole packet checksum: " + Integer.toHexString(checksumpkt));
