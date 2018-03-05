@@ -535,7 +535,7 @@ public abstract class BLDevice implements Closeable {
             CmdPayload cmdPayload) throws IOException {
         CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
         log.debug("sendCmdPkt - Send Command Packet bytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
-        return sendPkt(sock, cmdPkt, sourceIpAddr, sourcePort, InetAddress.getByName(host), 80, timeout, bufSize);
+        return sendPkt(sock, cmdPkt, InetAddress.getByName(host), 80, timeout, bufSize);
     }
 
     /**
@@ -940,7 +940,7 @@ public abstract class BLDevice implements Closeable {
         sock.setBroadcast(true);
         sock.setReuseAddress(true);
 
-        DatagramPacket recePkt = sendPkt(sock, pkt, sourceIpAddr, sourcePort, destIpAddr, destPort, timeout, bufSize);
+        DatagramPacket recePkt = sendPkt(sock, pkt, destIpAddr, destPort, timeout, bufSize);
         sock.close();
 
         return recePkt;
@@ -971,10 +971,9 @@ public abstract class BLDevice implements Closeable {
      *             Thrown if socket timed out, cannot bind source IP and source
      *             port, no permission, etc.
      */
-    public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress sourceIpAddr, int sourcePort,
-            InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
+    public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
     	
-    	log.debug("sendPkt - call with given sock for " + sourceIpAddr.getHostAddress() + " and port " + sourcePort);
+    	log.debug("sendPkt - call with given sock for " + sock.getInetAddress().getHostAddress() + " and port " + sock.getPort());
 
         byte[] data = pkt.getData();
         log.debug("DESTIP: " + destIpAddr.getHostAddress());
