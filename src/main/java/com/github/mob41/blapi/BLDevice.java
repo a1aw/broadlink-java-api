@@ -973,13 +973,14 @@ public abstract class BLDevice implements Closeable {
      */
     public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
     	
-    	log.debug("sendPkt - call with given sock for " + sock.getInetAddress().getHostAddress() + " and port " + sock.getPort());
+    	String boundHost = sock.getInetAddress().getHostAddress();
+    	if(boundHost == null)
+    		boundHost = "0.0.0.0";
+    	log.debug("sendPkt - call with given sock for " + boundHost + " and port " + sock.getPort());
 
         byte[] data = pkt.getData();
-        log.debug("DESTIP: " + destIpAddr.getHostAddress());
-        log.debug("DESTPORT: " + destPort);
         DatagramPacket sendpack = new DatagramPacket(data, data.length, destIpAddr, destPort);
-        sock.send(sendpack);
+        log.debug("snedPkt - data for length: " + data.length + " to: " + sendpack.getAddress().getHostAddress() + " for port: " + sendpack.getPort());
 
         byte[] rece = new byte[bufSize];
         DatagramPacket recepack = new DatagramPacket(rece, 0, rece.length);
@@ -988,7 +989,7 @@ public abstract class BLDevice implements Closeable {
         long elapsed;
         while ((elapsed = System.currentTimeMillis() - startTime) < timeout) {
             try {
-//                sock.send(sendpack);
+                sock.send(sendpack);
                 sock.setSoTimeout(1000);
                 sock.receive(recepack);
                 break;
