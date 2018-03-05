@@ -289,7 +289,7 @@ public abstract class BLDevice implements Closeable {
         sock = new DatagramSocket(0);
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
-        sock.bind(new InetSocketAddress("0.0.0.0", 0));
+        sock.bind(new InetSocketAddress(0));
     }
 
     /**
