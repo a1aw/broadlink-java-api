@@ -141,8 +141,8 @@ public class CmdPacket implements Packet {
 
         int checksum = 0xbeaf;
         for (int i = 0; i < payloadPad.length; i++) {
-            checksum += payloadPad[i];
-            checksum &= 0xffff;
+            checksum = checksum + (int) payloadPad[i];
+            checksum = checksum & 0xffff;
         }
 
         headerdata[0x34] = (byte) (checksum & 0xff);
@@ -179,10 +179,9 @@ public class CmdPacket implements Packet {
 
         checksum = 0xbeaf;
         for (int i = 0; i < data.length; i++) {
-            checksum += (byte) data[i];
-            checksum &= 0xffff;
+            checksum = checksum + (int) data[i];
+            checksum = checksum & 0xffff;
         }
-        checksum = 0xf730;
 
         log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
 
