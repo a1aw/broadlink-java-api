@@ -50,7 +50,6 @@ public class CmdPacket implements Packet {
 
     private static final int DEFAULT_BYTES_SIZE = 0x38; // 56-bytes
 
-    private final byte[] headerdata;
     private final byte[] data;
 
     /**
@@ -78,6 +77,7 @@ public class CmdPacket implements Packet {
 
         byte cmd = cmdPayload.getCommand();
         byte[] payload = cmdPayload.getPayload().getData();
+        byte[] headerdata;
 
         log.debug("Constructor CmdPacket starts");
         log.debug("count=" + count + " cmdPayload.cmd=" + Integer.toHexString(cmd) + " payload.len=" + payload.length);
@@ -139,16 +139,16 @@ public class CmdPacket implements Packet {
 
         log.debug("Running checksum for un-encrypted payload");
 
-        int checksum = 0xbeaf;
+        int checksumpayload = 0xbeaf;
         for (int i = 0; i < payloadPad.length; i++) {
-            checksum = checksum + (int) payloadPad[i];
-            checksum = checksum & 0xffff;
+            checksumpayload = checksumpayload + (int) payloadPad[i];
+            checksumpayload = checksumpayload & 0xffff;
         }
 
-        headerdata[0x34] = (byte) (checksum & 0xff);
-        headerdata[0x35] = (byte) (checksum >> 8);
+        headerdata[0x34] = (byte) (checksumpayload & 0xff);
+        headerdata[0x35] = (byte) (checksumpayload >> 8);
 
-        log.debug("Un-encrypted payload checksum: " + Integer.toHexString(checksum));
+        log.debug("Un-encrypted payload checksum: " + Integer.toHexString(checksumpayload));
         log.debug("Creating AES instance with provided key {}, iv {}", key, iv);
 
         AES aes = new AES(iv, key);
@@ -177,17 +177,17 @@ public class CmdPacket implements Packet {
 
         log.debug("Running whole packet checksum");
 
-        checksum = 0xbeaf;
+        int checksumpkt = 0xbeaf;
         for (int i = 0; i < data.length; i++) {
-            checksum = checksum + (int) data[i];
-            checksum = checksum & 0xffff;
-            log.debug("index: " + i + ", checksum: " + checksum);
+            checksumpkt = checksumpkt + (int) data[i];
+            checksumpkt = checksumpkt & 0xffff;
+            log.debug("index: " + i + ", data byte: " + (byte) data[i] + ", checksum: " + checksumpkt);
         }
 
-        log.debug("Whole packet checksum: " + Integer.toHexString(checksum));
+        log.debug("Whole packet checksum: " + Integer.toHexString(checksumpkt));
 
-        data[0x20] = (byte) (checksum & 0xff);
-        data[0x21] = (byte) (checksum >> 8);
+        data[0x20] = (byte) (checksumpkt & 0xff);
+        data[0x21] = (byte) (checksumpkt >> 8);
 
         log.debug("End of CmdPacket constructor");
     }
