@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
-import com.github.mob41.blapi.pkt.auth.AES;
 
 public class A1Device extends BLDevice {
 
@@ -79,8 +78,7 @@ public class A1Device extends BLDevice {
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
-            AES aes = new AES(getIv(), getKey());
-            byte[] pl = aes.decrypt(chgLen(subbytes(data, 56, 1024), 1024));
+            byte[] pl = decryptFromDeviceMessage(data);
             log.debug("checkSensors Packet received bytes (decrypted): {}", DatatypeConverter.printHexBinary(pl));
 
             float temp = (float) ((pl[0x4] * 10 + pl[0x5]) / 10.0);

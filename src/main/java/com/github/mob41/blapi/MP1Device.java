@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
-import com.github.mob41.blapi.pkt.auth.AES;
 
 public class MP1Device extends BLDevice {
 
@@ -118,7 +117,7 @@ public class MP1Device extends BLDevice {
 
         });
 
-        log.debug("Received set power bytes: " + packet.getData());
+        log.debug("Received set power bytes: " + DatatypeConverter.printHexBinary(packet.getData()));
     }
     
     public boolean getStateByIndex(int index) throws Exception{
@@ -175,8 +174,7 @@ public class MP1Device extends BLDevice {
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
-            AES aes = new AES(getIv(), getKey());
-            byte[] pl = aes.decrypt(data);
+            byte[] pl = decryptFromDeviceMessage(data);
             byte state = 0;
             if (pl[0x3c] >= 48 && pl[0x3c] <= 57) {
                 String decodeValue1;

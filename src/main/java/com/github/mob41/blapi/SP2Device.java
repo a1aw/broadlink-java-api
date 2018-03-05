@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
-import com.github.mob41.blapi.pkt.auth.AES;
 
 public class SP2Device extends BLDevice {
 
@@ -79,7 +78,7 @@ public class SP2Device extends BLDevice {
 
         });
 
-        log.debug("Received set power bytes: " + packet.getData());
+        log.debug("Received set power bytes: " + DatatypeConverter.printHexBinary(packet.getData()));
     }
 
     public boolean getState() throws Exception {
@@ -105,28 +104,14 @@ public class SP2Device extends BLDevice {
             }
 
         });
-        byte[] encData = packet.getData();
+        byte[] data = packet.getData();
 
-        log.debug("Packet received bytes: " + DatatypeConverter.printHexBinary(encData));
+        log.debug("Packet received enctypted bytes: " + DatatypeConverter.printHexBinary(data));
 
-        int err = encData[0x22] | (encData[0x23] << 8);
+        int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
-            AES aes = new AES(getIv(), getKey());
-            byte[] newBytes = null;
-            if(encData.length > 0) {
-              int numpad = encData.length % 16;
-              if(numpad == 0)
-            	  numpad = 16;
-              newBytes = new byte[encData.length+numpad];
-              for(int i = 0; i < newBytes.length; i++) {
-            	  if(i < encData.length)
-            		  newBytes[i] = encData[i];
-            	  else
-            		  newBytes[i] = 0x00;
-              }
-            }
-            byte[] pl = aes.decrypt(newBytes);
+            byte[] pl = decryptFromDeviceMessage(data);
             return pl[0x4] == 1 ? true : false;
         } else {
             log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);

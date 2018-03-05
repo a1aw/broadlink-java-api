@@ -33,9 +33,9 @@ import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
-import com.github.mob41.blapi.pkt.auth.AES;
 
 /**
  * This constructs a byte array with the format of a command to the Broadlink
@@ -47,8 +47,6 @@ import com.github.mob41.blapi.pkt.auth.AES;
 public class CmdPacket implements Packet {
 
     private static final Logger log = LoggerFactory.getLogger(CmdPacket.class);
-
-    private static final int DEFAULT_BYTES_SIZE = 0x38; // 56-bytes
 
     private final byte[] data;
 
@@ -87,7 +85,7 @@ public class CmdPacket implements Packet {
         log.debug("New count: " + count + " (added by 1)");
         log.debug("Creating byte array with data");
 
-        headerdata = new byte[DEFAULT_BYTES_SIZE];
+        headerdata = new byte[BLDevice.DEFAULT_BYTES_SIZE];
         for (int i = 0; i < headerdata.length; i++) {
             headerdata[i] = 0x00;
         }
@@ -149,14 +147,11 @@ public class CmdPacket implements Packet {
         headerdata[0x35] = (byte) (checksumpayload >> 8);
 
         log.debug("Un-encrypted payload checksum: " + Integer.toHexString(checksumpayload));
-        log.debug("Creating AES instance with provided key {}, iv {}", key, iv);
-
-        AES aes = new AES(iv, key);
 
         try {
             log.debug("Encrypting payload");
 
-            payload = aes.encrypt(payloadPad);
+            payload = BLDevice.getAes().encrypt(payloadPad);
             log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
 
             log.debug("Encrypted. len=" + payload.length);
@@ -165,14 +160,14 @@ public class CmdPacket implements Packet {
             throw new BLApiRuntimeException("Cannot encrypt payload", e);
         }
 
-        data = new byte[DEFAULT_BYTES_SIZE + payload.length];
+        data = new byte[BLDevice.DEFAULT_BYTES_SIZE + payload.length];
         
         for (int i = 0; i < headerdata.length; i++) {
             data[i] = headerdata[i];
         }
 
         for (int i = 0; i < payload.length; i++) {
-            data[i + DEFAULT_BYTES_SIZE] = payload[i];
+            data[i + BLDevice.DEFAULT_BYTES_SIZE] = payload[i];
         }
 
         log.debug("Running whole packet checksum");
@@ -181,7 +176,7 @@ public class CmdPacket implements Packet {
         for (int i = 0; i < data.length; i++) {
             checksumpkt = checksumpkt + Byte.toUnsignedInt(data[i]);
             checksumpkt = checksumpkt & 0xffff;
-            log.debug("index: " + i + ", data byte: " + Byte.toUnsignedInt(data[i]) + ", checksum: " + checksumpkt);
+//            log.debug("index: " + i + ", data byte: " + Byte.toUnsignedInt(data[i]) + ", checksum: " + checksumpkt);
         }
 
         log.debug("Whole packet checksum: " + Integer.toHexString(checksumpkt));
