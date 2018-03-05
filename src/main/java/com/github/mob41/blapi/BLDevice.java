@@ -286,7 +286,7 @@ public abstract class BLDevice implements Closeable {
         this.host = host;
         this.mac = mac;
 
-        sock = new DatagramSocket();
+        sock = new DatagramSocket(0, InetAddress.getByName("10.8.0.4"));
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
         // sock.bind(new InetSocketAddress(0));
