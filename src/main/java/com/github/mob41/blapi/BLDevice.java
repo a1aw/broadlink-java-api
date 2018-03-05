@@ -973,9 +973,11 @@ public abstract class BLDevice implements Closeable {
      */
     public static DatagramPacket sendPkt(DatagramSocket sock, Packet pkt, InetAddress destIpAddr, int destPort, int timeout, int bufSize) throws IOException {
     	
-    	String boundHost = sock.getInetAddress().getHostAddress();
-    	if(boundHost == null)
+    	String boundHost = null;
+    	if(sock.getInetAddress() == null)
     		boundHost = "0.0.0.0";
+    	else
+    		boundHost = sock.getInetAddress().getHostAddress();
     	log.debug("sendPkt - call with given sock for " + boundHost + " and port " + sock.getPort());
 
         byte[] data = pkt.getData();
