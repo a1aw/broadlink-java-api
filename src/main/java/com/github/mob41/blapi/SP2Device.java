@@ -45,7 +45,7 @@ public class SP2Device extends BLDevice {
 
     private static final Logger log = LoggerFactory.getLogger(SP2Device.class);
 
-    protected SP2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
+    public SP2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
         super(deviceType, deviceDesc, host, mac);
     }
     
