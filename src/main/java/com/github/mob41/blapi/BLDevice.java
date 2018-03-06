@@ -738,7 +738,7 @@ public abstract class BLDevice implements Closeable {
         return out;
     }
     
-    private static String getDescOfType(short devType){
+    public static String getDescOfType(short devType){
         switch (devType) {
         
         //
@@ -791,6 +791,12 @@ public abstract class BLDevice implements Closeable {
         case BLDevice.DEV_SPMINI_PLUS:
             return DESC_SPMINI_PLUS;
 
+        case BLDevice.DEV_SP1:
+        	return BLDevice.DESC_SP1;
+        case BLDevice.DEV_MP1:
+        	return BLDevice.DESC_MP1;
+        case BLDevice.DEV_A1:
+        	return BLDevice.DESC_A1;
         //
         // Unregonized
         //
