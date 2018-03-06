@@ -52,7 +52,7 @@ public class RM2Device extends BLDevice {
      * @param mac The target Broadlink MAC address
      * @throws IOException Problems on constructing socket
      */
-    protected RM2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException{
+	public RM2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException{
         super(deviceType, deviceDesc, host, mac);
     }
 
