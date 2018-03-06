@@ -259,9 +259,14 @@ public abstract class BLDevice implements Closeable {
     private Mac mac;
     
     /**
-     * Global AES decrytpor
+     * Global AES decryption object
      */
     private static AES aes = null;
+    
+    /**
+     * flag to denote this object alreay authorized.
+     */
+    private boolean alreadyAuthorized;
     
     /**
      * Constructs a <code>BLDevice</code>, with a device type (constants),
@@ -295,6 +300,7 @@ public abstract class BLDevice implements Closeable {
         sock.setReuseAddress(true);
         sock.setBroadcast(true);
         aes = new AES(iv, key);
+        alreadyAuthorized = false;
     }
 
     /**
@@ -345,6 +351,15 @@ public abstract class BLDevice implements Closeable {
     }
 
     /**
+     * Compatibility with previous code
+     * @return
+     * @throws IOException
+     */
+    public boolean auth() throws IOException {
+    	return auth(false);
+    }
+
+    /**
      * Authenticates with the broadlink device, before any other control
      * commands
      * 
@@ -352,9 +367,12 @@ public abstract class BLDevice implements Closeable {
      * @throws IOException
      *             If I/O goes wrong
      */
-    public boolean auth() throws IOException {
+    public boolean auth(boolean reauth) throws IOException {
         log.debug("auth Authentication method starts");
-        log.debug("auth Constructing AuthCmdPayload");
+        if(alreadyAuthorized && !reauth) {
+        	log.debug("auth Already Authorized.");
+        	return true;
+        }
 
         AuthCmdPayload sendPayload = new AuthCmdPayload();
         log.debug("auth Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
@@ -364,12 +382,11 @@ public abstract class BLDevice implements Closeable {
 
         DatagramPacket recvPack = sendCmdPkt(10000, 2048, sendPayload);
 
-        log.debug("auth Received initial datagram");
-
         byte[] data = recvPack.getData();
         
         if(data.length <= 0) {
             log.error("auth Received 0 bytes on initial request.");
+            alreadyAuthorized = false;
             return false;
         }
 
@@ -385,12 +402,11 @@ public abstract class BLDevice implements Closeable {
 
         } catch (Exception e) {
             log.error("auth Received datagram decryption error. Aborting method", e);
+            alreadyAuthorized = false;
             return false;
         }
 
         log.debug("auth Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
-
-        log.debug("auth Getting key from 0x04 to 0x14");
 
         key = subbytes(payload, 0x04, 0x14);
 
@@ -398,19 +414,19 @@ public abstract class BLDevice implements Closeable {
 
         if (key.length % 16 != 0) {
             log.error("auth Received key len is not a multiple of 16! Aborting");
+            alreadyAuthorized = false;
             return false;
         }
 
+        // recreate AES object with new key
         aes = new AES(iv, key);
-
-        log.debug("auth Getting ID from 0x00 to 0x04");
 
         id = subbytes(payload, 0x00, 0x04);
 
-        log.debug("auth Packet received id bytes: " + DatatypeConverter.printHexBinary(id));
+        log.debug("auth Packet received id bytes: " + DatatypeConverter.printHexBinary(id) + " with ID len=" + id.length);
 
-        log.debug("auth ID len=" + id.length);
         log.debug("auth End of authentication method");
+        alreadyAuthorized = true;
 
         return true;
     }
