@@ -722,7 +722,7 @@ public abstract class BLDevice implements Closeable {
         }
 
         if (debug)
-            log.debug("Converting list to array");
+            log.debug("Converting list to array: " + devices.size());
 
         BLDevice[] out = new BLDevice[devices.size()];
 
@@ -731,7 +731,7 @@ public abstract class BLDevice implements Closeable {
         }
 
         if (debug)
-            log.debug("End of device discovery");
+            log.debug("End of device discovery: " + out.length);
         
         sock.close();
 
