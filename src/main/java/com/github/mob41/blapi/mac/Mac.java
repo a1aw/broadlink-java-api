@@ -28,6 +28,7 @@
  *******************************************************************************/
 package com.github.mob41.blapi.mac;
 
+
 /**
  * A class that handles a MAC address in String and bytes array format
  *
@@ -150,7 +151,7 @@ public class Mac {
         String str = "";
 
         for (int i = 0; i < macBytes.length; i++) {
-            String hexStr = Integer.toHexString(macBytes[i]);
+            String hexStr = String.format("%02x", macBytes[i]);
             str += hexStr;
 
             if (i != macBytes.length - 1) {
