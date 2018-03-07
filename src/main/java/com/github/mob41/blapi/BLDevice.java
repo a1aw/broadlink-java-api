@@ -259,9 +259,9 @@ public abstract class BLDevice implements Closeable {
     private Mac mac;
     
     /**
-     * Global AES decryption object
+     * AES decryption object
      */
-    private static AES aes = null;
+    private AES aes = null;
     
     /**
      * flag to denote this object alreay authorized.
@@ -338,7 +338,7 @@ public abstract class BLDevice implements Closeable {
         return mac;
     }
 
-    public static AES getAes() {
+    public AES getAes() {
 		return aes;
 	}
 
@@ -518,7 +518,7 @@ public abstract class BLDevice implements Closeable {
      */
     public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize,
             CmdPayload cmdPayload) throws IOException {
-        CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, cmdPayload);
+        CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, aes, cmdPayload);
         log.debug("sendCmdPkt - Send Command Packet bytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
         return sendPkt(sock, cmdPkt, InetAddress.getByName(host), 80, timeout, bufSize);
     }
@@ -882,7 +882,7 @@ public abstract class BLDevice implements Closeable {
      * @param data the encrypted data message from the device and includes the header
      * @return Payload bytes without the header and padded to modulo 16
      */
-    public static byte[] getRawPayloadBytesPadded(byte[] data) {
+    public byte[] getRawPayloadBytesPadded(byte[] data) {
         byte[] encData = subbytes(data, BLDevice.DEFAULT_BYTES_SIZE, data.length);
         byte[] newBytes = null;
         if(encData.length > 0) {
@@ -899,7 +899,7 @@ public abstract class BLDevice implements Closeable {
         return newBytes;
     }
     
-    protected static byte[] decryptFromDeviceMessage(byte[] encData) throws Exception {
+    protected byte[] decryptFromDeviceMessage(byte[] encData) throws Exception {
     	byte[] encPL = getRawPayloadBytesPadded(encData);
         byte[] pl = aes.decrypt(encPL);
         
