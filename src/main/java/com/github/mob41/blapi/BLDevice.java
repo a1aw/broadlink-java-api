@@ -886,9 +886,8 @@ public abstract class BLDevice implements Closeable {
         byte[] encData = subbytes(data, BLDevice.DEFAULT_BYTES_SIZE, data.length);
         byte[] newBytes = null;
         if(encData.length > 0) {
-          int numpad = encData.length % 16;
-          if(numpad == 0)
-        	  numpad = 16;
+          int numpad = 16 - (encData.length % 16);
+
           newBytes = new byte[encData.length+numpad];
           for(int i = 0; i < newBytes.length; i++) {
         	  if(i < encData.length)
