@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.auth.AES;
 
 /**
  * This constructs a byte array with the format of a command to the Broadlink
@@ -71,7 +72,7 @@ public class CmdPacket implements Packet {
      * @param payload
      *            The data to be sent
      */
-    public CmdPacket(Mac targetMac, int count, byte[] id, byte[] iv, byte[] key, CmdPayload cmdPayload) {
+    public CmdPacket(Mac targetMac, int count, byte[] id, byte[] iv, byte[] key, AES theAes, CmdPayload cmdPayload) {
 
         byte cmd = cmdPayload.getCommand();
         byte[] payload = cmdPayload.getPayload().getData();
@@ -150,7 +151,7 @@ public class CmdPacket implements Packet {
         try {
             log.debug("Encrypting payload");
 
-            payload = BLDevice.getAes().encrypt(payloadPad);
+            payload = theAes.encrypt(payloadPad);
             log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
 
             log.debug("Encrypted. len=" + payload.length);
