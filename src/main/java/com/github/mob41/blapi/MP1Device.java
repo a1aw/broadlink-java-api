@@ -34,17 +34,11 @@ import java.net.DatagramPacket;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class MP1Device extends BLDevice {
-
-    private static final Logger log = LoggerFactory.getLogger(MP1Device.class);
-    
     /**
      * Generic way to create a MP1Device
      * @param deviceType Device Type
@@ -117,7 +111,15 @@ public class MP1Device extends BLDevice {
 
         });
 
-        log.debug("Received set power bytes: " + DatatypeConverter.printHexBinary(packet.getData()));
+        byte[] data = packet.getData();
+
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err == 0) {
+        	log.debug("MP1 set state mask received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        } else {
+            log.warn("MP1 set state mask received returned err: " + Integer.toHexString(err) + " / " + err);        	
+        }
     }
     
     public boolean getStateByIndex(int index) throws Exception{
@@ -169,12 +171,13 @@ public class MP1Device extends BLDevice {
 
         byte[] data = packet.getData();
 
-        log.debug("Packet received bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("MP1 get states raw received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
+            log.debug("MP1 get states raw received bytes (decrypted): " + DatatypeConverter.printHexBinary(pl));
             byte state = 0;
             if (pl[0x3c] >= 48 && pl[0x3c] <= 57) {
                 String decodeValue1;
@@ -185,7 +188,7 @@ public class MP1Device extends BLDevice {
             }
             return state;
         } else {
-            log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
+            log.warn("MP1 get states raw received an error: " + Integer.toHexString(err) + " / " + err);
         }
         return 0;
     }

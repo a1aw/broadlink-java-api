@@ -31,6 +31,8 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+import javax.xml.bind.DatatypeConverter;
+
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.cmd.rm2.CheckDataCmdPayload;
 import com.github.mob41.blapi.pkt.cmd.rm2.EnterLearnCmdPayload;
@@ -86,12 +88,16 @@ public class RM2Device extends BLDevice {
 
         int err = data[0x22] | (data[0x23] << 8);
 
+        log.debug("RM2 check data received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+
+
         if (err == 0) {
             byte[] encData = decryptFromDeviceMessage(data);
 
             return subbytes(encData, 0x04, encData.length);
         }
 
+        log.warn("RM2 check data received error: " + Integer.toHexString(err) + " / " + err);
         return null;
     }
 
@@ -106,10 +112,18 @@ public class RM2Device extends BLDevice {
      */
     public boolean enterLearning() throws IOException {
         EnterLearnCmdPayload cmdPayload = new EnterLearnCmdPayload();
-        @SuppressWarnings("unused")
 		DatagramPacket packet = sendCmdPkt(10000, cmdPayload);
 
-        return true;
+        byte[] data = packet.getData();
+        log.debug("RM2 enter learning received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err == 0) {
+        	return true;
+        }
+        
+        log.warn("RM2 enter learning received error: " + Integer.toHexString(err) + " / " + err);
+        return false;
     }
 
     /**
@@ -125,14 +139,16 @@ public class RM2Device extends BLDevice {
         DatagramPacket packet = sendCmdPkt(new RMTempCmdPayload());
         byte[] data = packet.getData();
 
+        log.debug("RM2 get temp received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
+            log.debug("RM2 get temp received bytes (decrypted): " + DatatypeConverter.printHexBinary(pl));
 
             return (double) (pl[0x4] * 10 + pl[0x5]) / 10.0;
         } else {
-            System.out.println(Integer.toHexString(err) + " / " + err);
+            log.warn("RM2 get temp received error: " + Integer.toHexString(err) + " / " + err);
         }
 
         return -1;

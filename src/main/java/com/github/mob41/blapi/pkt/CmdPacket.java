@@ -61,18 +61,12 @@ public class CmdPacket implements Packet {
      * @param id
      *            This BLDevice ID provided by the Broadlink device. It is
      *            {0,0,0,0} if auth() not ran
-     * @param iv
-     *            Encryption IV. It is from the INITIAL_IV or the Broadlink
-     *            device
-     * @param key
-     *            Encrytion KEY. It is from the INITIAL_KEY or the Broadlink
-     *            device
-     * @param cmd
-     *            The command
+     * @param aesInstance
+     *            The AES encrypt/decrypt instance
      * @param payload
      *            The data to be sent
      */
-    public CmdPacket(Mac targetMac, int count, byte[] id, byte[] iv, byte[] key, AES theAes, CmdPayload cmdPayload) {
+    public CmdPacket(Mac targetMac, int count, byte[] id, AES aesInstance, CmdPayload cmdPayload) {
 
         byte cmd = cmdPayload.getCommand();
         byte[] payload = cmdPayload.getPayload().getData();
@@ -151,7 +145,7 @@ public class CmdPacket implements Packet {
         try {
             log.debug("Encrypting payload");
 
-            payload = theAes.encrypt(payloadPad);
+            payload = aesInstance.encrypt(payloadPad);
             log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
 
             log.debug("Encrypted. len=" + payload.length);
