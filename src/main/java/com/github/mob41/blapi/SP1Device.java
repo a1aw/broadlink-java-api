@@ -32,16 +32,13 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.xml.bind.DatatypeConverter;
 
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class SP1Device extends BLDevice {
-
-    private static final Logger log = LoggerFactory.getLogger(SP1Device.class);
 
     public SP1Device(String host, Mac mac) throws IOException {
         super(BLDevice.DEV_SP1, BLDevice.DESC_SP1, host, mac);
@@ -71,6 +68,14 @@ public class SP1Device extends BLDevice {
 
         });
 
-        log.debug("receveid set power bytes: " + packet.getData());
+        byte[] data = packet.getData();
+
+        log.debug("SP1 set power received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err != 0) {
+            log.warn("SP1 set power received returned err: " + Integer.toHexString(err) + " / " + err);        	
+        }
     }
 }

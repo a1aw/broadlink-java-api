@@ -33,16 +33,11 @@ import java.net.DatagramPacket;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class A1Device extends BLDevice {
-
-    private static final Logger log = LoggerFactory.getLogger(A1Device.class);
 
     public A1Device(String host, Mac mac) throws IOException {
         super(BLDevice.DEV_A1, BLDevice.DESC_A1, host, mac);
@@ -73,13 +68,13 @@ public class A1Device extends BLDevice {
         });
         byte[] data = packet.getData();
 
-        log.debug("checkSensors Packet received bytes: {}", DatatypeConverter.printHexBinary(data));
+        log.debug("A1 check sensors received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
-            log.debug("checkSensors Packet received bytes (decrypted): {}", DatatypeConverter.printHexBinary(pl));
+            log.debug("A1 check sensors received bytes (decrypted):" + DatatypeConverter.printHexBinary(pl));
 
             float temp = (float) ((pl[0x4] * 10 + pl[0x5]) / 10.0);
             float hum = (float) ((pl[0x6] * 10 + pl[0x7]) / 10.0);
@@ -89,7 +84,7 @@ public class A1Device extends BLDevice {
             
             return new EnvData(temp, hum, light, airQuality, noise);
         } else {
-            log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
+            log.warn("A1 check sensors received an error: " + Integer.toHexString(err) + " / " + err);
             return null;
         }
     }

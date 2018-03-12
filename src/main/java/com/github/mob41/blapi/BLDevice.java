@@ -62,7 +62,7 @@ public abstract class BLDevice implements Closeable {
     /**
      * The specific logger for this class
      */
-    private static final Logger log = LoggerFactory.getLogger(BLDevice.class);
+    protected static final Logger log = LoggerFactory.getLogger(BLDevice.class);
 
     /**
      * Initial key for encryption
@@ -518,7 +518,7 @@ public abstract class BLDevice implements Closeable {
      */
     public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize,
             CmdPayload cmdPayload) throws IOException {
-        CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, iv, key, aes, cmdPayload);
+        CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, aes, cmdPayload);
         log.debug("sendCmdPkt - Send Command Packet bytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
         return sendPkt(sock, cmdPkt, InetAddress.getByName(host), 80, timeout, bufSize);
     }

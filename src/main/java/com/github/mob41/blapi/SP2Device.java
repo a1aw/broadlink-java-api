@@ -34,16 +34,11 @@ import java.net.DatagramPacket;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
 
 public class SP2Device extends BLDevice {
-
-    private static final Logger log = LoggerFactory.getLogger(SP2Device.class);
 
     protected SP2Device(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
         super(deviceType, deviceDesc, host, mac);
@@ -78,7 +73,15 @@ public class SP2Device extends BLDevice {
 
         });
 
-        log.debug("Received set power bytes: " + DatatypeConverter.printHexBinary(packet.getData()));
+        byte[] data = packet.getData();
+
+        log.debug("SP2 set state received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+
+        int err = data[0x22] | (data[0x23] << 8);
+
+        if (err != 0) {
+            log.warn("SP2 set state received returned err: " + Integer.toHexString(err) + " / " + err);        	
+        }
     }
 
     public boolean getState() throws Exception {
@@ -106,15 +109,16 @@ public class SP2Device extends BLDevice {
         });
         byte[] data = packet.getData();
 
-        log.debug("Packet received enctypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("SP2 get state received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
+            log.debug("SP2 get state  received bytes (decrypted): " + DatatypeConverter.printHexBinary(pl));
             return pl[0x4] == 1 ? true : false;
         } else {
-            log.warn("Received an error: " + Integer.toHexString(err) + " / " + err);
+            log.warn("SP2 get state received an error: " + Integer.toHexString(err) + " / " + err);
         }
 
         return false;

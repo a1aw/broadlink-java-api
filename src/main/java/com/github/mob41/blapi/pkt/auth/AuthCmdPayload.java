@@ -35,10 +35,6 @@ public class AuthCmdPayload implements CmdPayload {
 
     private final AuthPayload authPayload;
 
-    public AuthCmdPayload(byte[] devId, byte[] devName) {
-        authPayload = new AuthPayload(devId, devName);
-    }
-
     public AuthCmdPayload() {
         authPayload = new AuthPayload();
     }
