@@ -16,12 +16,12 @@ public class AdvancedStatusInfo extends BaseStatusInfo {
     private final short min;
     private final short sec;
     private final short dayofweek;
-    
+
     // there are 8 periods available for configuration:
     // 6 for weekdays and 2 for weekends.
     // Loop mode controls which periods get to be applied during Sat and Sun.
     private final Period[] periods = new Period[8];
-    
+
     private final Period[] weekday = new Period[6];
     private final Period[] weekend = new Period[2];
 
