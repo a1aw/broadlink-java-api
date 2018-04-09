@@ -8,7 +8,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.mob41.blapi.BLDevice;
+import com.github.mob41.blapi.device.hysen.BaseHysenDevice;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Crc16;
 import com.github.mob41.blapi.pkt.Payload;
@@ -26,7 +26,7 @@ public abstract class BaseHysenCommand implements CmdPayload {
 
     protected static final Logger log = LoggerFactory.getLogger(BaseHysenCommand.class);
 
-    public byte[] execute(BLDevice device) throws Exception {
+    public byte[] execute(BaseHysenDevice device) throws Exception {
 
         DatagramPacket packet = device.sendCmdPkt(this);
 
@@ -57,12 +57,11 @@ public abstract class BaseHysenCommand implements CmdPayload {
     public Payload getPayload() {
         return new Payload() {
             /**
-             * hysen thermostats require a crc16 calculated on the payload before it can be send and a length field.
+             * hysen thermostats require a crc16 calculated on the payload before it can be
+             * send and a length field.
              * 
-             * Payload format:
-             * 2 bytes len: first byte is len, second is 0. len includes also CRC (2 bytes_
-             * X bytes payload
-             * 2 bytes CRC16 in ModBus format
+             * Payload format: 2 bytes len: first byte is len, second is 0. len includes
+             * also CRC (2 bytes_ X bytes payload 2 bytes CRC16 in ModBus format
              */
             @Override
             public byte[] getData() {

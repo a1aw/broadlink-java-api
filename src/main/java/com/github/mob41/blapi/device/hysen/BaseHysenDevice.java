@@ -55,14 +55,23 @@ public class BaseHysenDevice extends BLDevice {
     /**
      * Generic way to create a BaseHysenDevice
      * 
-     * @param deviceType Device Type
-     * @param deviceDesc Friendly device description
-     * @param host       The target Broadlink hostname
-     * @param mac        The target Broadlink MAC address
-     * @throws IOException Problems on constructing socket
+     * @param deviceType
+     *            Device Type
+     * @param deviceDesc
+     *            Friendly device description
+     * @param host
+     *            The target Broadlink hostname
+     * @param mac
+     *            The target Broadlink MAC address
+     * @throws IOException
+     *             Problems on constructing socket
      */
     protected BaseHysenDevice(short deviceType, String deviceDesc, String host, Mac mac) throws IOException {
         super(deviceType, deviceDesc, host, mac);
+    }
+
+    public byte[] decryptFromDeviceMessage(byte[] encData) throws Exception {
+        return super.decryptFromDeviceMessage(encData);
     }
 
     public double getThermostatTemp() throws Exception {

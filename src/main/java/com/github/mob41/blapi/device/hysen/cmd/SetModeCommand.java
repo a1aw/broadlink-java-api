@@ -11,8 +11,4 @@ public class SetModeCommand extends GenericByteCommand {
     public SetModeCommand(byte auto_mode, byte loop_mode, byte sensor) {
         super(new byte[] { 0x01, 0x06, 0x00, 0x02, ((byte) (((loop_mode + 1) << 4) + auto_mode)), sensor });
     }
-
-//	public SetModeCommand(byte auto_mode, byte loop_mode) {
-//		super(new byte[] {0x01,0x06,0x00,0x02,((byte) (( (loop_mode + 1) << 4) + auto_mode)), 0});
-//	}
 }
