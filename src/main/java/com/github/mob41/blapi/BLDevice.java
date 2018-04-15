@@ -125,7 +125,7 @@ public abstract class BLDevice implements Closeable {
     public static final short DEV_A1 = 0x2714;
 
     public static final short DEV_MP1 = 0x4EB5;
-
+    
     public static final short DEV_HYSEN = 0x4EAD;
 
     public static final short DEV_FLOUREON = 0xffffffad;
@@ -807,7 +807,7 @@ public abstract class BLDevice implements Closeable {
         case BLDevice.DEV_MP1:
         	return BLDevice.DESC_MP1;
         case BLDevice.DEV_A1:
-            return BLDevice.DESC_A1;
+        	return BLDevice.DESC_A1;
         case BLDevice.DEV_HYSEN:
             return BLDevice.DESC_HYSEN;
         case BLDevice.DEV_FLOUREON:
