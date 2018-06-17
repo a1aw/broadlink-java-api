@@ -42,6 +42,7 @@
       </activation>
       <properties>
         <gpg.executable>gpg2</gpg.executable>
+        <gpg.keyname>${env.CI_KEY_NAME}</gpg.keyname>
         <gpg.passphrase>${env.CI_KEY_PASSPHRASE}</gpg.passphrase>
       </properties>
     </profile>

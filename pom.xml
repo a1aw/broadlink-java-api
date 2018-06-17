@@ -59,8 +59,7 @@
   	<developerConnection>scm:git:ssh://github.com:mob41/broadlink-java-api.git</developerConnection>
   	<url>http://github.com/mob41/broadlink-java-api/tree/master</url>
   </scm>
-  
-  <!--
+	
   <distributionManagement>
   	<snapshotRepository>
     	<id>ossrh</id>
@@ -71,7 +70,6 @@
     	<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
   	</repository>
   </distributionManagement>
-  -->
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -98,8 +96,7 @@
 		<scope>test</scope>
 	</dependency>
   </dependencies>
-  
-  <!--
+	
   <build>
   	<plugins>
     	<plugin>
@@ -144,6 +141,6 @@
     	</plugin>
    		</plugins>
  	</build>
- 	-->
+	
   <version>1.0.1-SNAPSHOT</version>
 </project>
