@@ -5,7 +5,38 @@ This is a Java version of [mjg59](https://github.com/mjg59)'s [python-broadlink]
 
 ## Adding this API
 
-1. (Eclipse) Clone the project via ```git clone https://github.com/mob41/broadlink-java-api.git``` or via the [download ZIP](https://github.com/mob41/broadlink-java-api/archive/master.zip) and extract the ZIP to a folder.
+This API is distributed via **Maven Central**. You can import via adding this as dependency in Maven ```pom.xml``` or clone/download this as ZIP and import in IDE.
+
+1. **Via Maven Central**: (Release Builds) Add the following to your ```pom.xml``` under ```<dependencies>```
+
+    ```xml
+    <dependency>
+        <groupId>com.github.mob41.blapi</groupId>
+        <artifactId>broadlink-java-api</artifactId>
+        <version>1.0.1</version>
+    </dependency>
+    ```
+    
+2. **Via OSSRH Snapshots**: (Development Builds) To access snapshots/development builds e.g. ```1.0.1-SNAPSHOT```, you have to add the OSSRH snapshot repository
+
+    ```xml
+    <profiles>
+      <profile>
+         <id>allow-snapshots</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+         <repositories>
+           <repository>
+             <id>snapshots-repo</id>
+             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+             <releases><enabled>false</enabled></releases>
+             <snapshots><enabled>true</enabled></snapshots>
+           </repository>
+         </repositories>
+       </profile>
+    </profiles>
+    ```
+    
+3. **Via Cloning**: (Eclipse) Clone the project via ```git clone https://github.com/mob41/broadlink-java-api.git``` or via the [download ZIP](https://github.com/mob41/broadlink-java-api/archive/master.zip) and extract the ZIP to a folder.
    
    And add the project into your Eclipse IDE by right clicking the ```Package Explorer```, and,
    ```Import...``` -> ```Maven``` -> ```Existing Maven Projects```
@@ -18,21 +49,9 @@ This is a Java version of [mjg59](https://github.com/mjg59)'s [python-broadlink]
     <dependency>
         <groupId>com.github.mob41.blapi</groupId>
         <artifactId>broadlink-java-api</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
     </dependency>
     ```
-    
-
-2. Maven dependency: Add the following to your ```pom.xml``` under ```<dependencies>```
-
-    ```xml
-    <dependency>
-        <groupId>com.github.mob41.blapi</groupId>
-        <artifactId>broadlink-java-api</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
-    </dependency>
-    ```
-    
 
 ## Tutorial
 
@@ -44,11 +63,13 @@ This is a Java version of [mjg59](https://github.com/mjg59)'s [python-broadlink]
     import com.github.mob41.blapi.mac.Mac; //Necessary if using <code>2.ii</code>
     ```
 
-2. Creating a Broadlink device to connect
-
-  i. You can discover it.
+2. Creating/Discovering ```BLDevice``` instances by two methods:
     
     ```java
+    //
+    // === Method 1. By Discovering Devices In Local Network ===
+    //
+    
     BLDevice[] devs = BLDevice.discoverDevices(); //Default with 10000 ms (10 sec) timeout, search for multiple devices
     
     //BLDevice[] devs = BLDevice.discoverDevices(0); //No timeout will block the thread and search for one device only
@@ -64,16 +85,15 @@ This is a Java version of [mjg59](https://github.com/mjg59)'s [python-broadlink]
     }
     
     //BLDevice dev = devs[0]
-    ```
-        
-  ii. Create a <code>RM2Device</code> or another <code>BLDevice</code> child according to your device type
     
-    ```java
+    //
+    // === Method 2. Create a "RM2Device" or another "BLDevice" child according to your device type ===
+    //
+    
     BLDevice dev = new RM2Device("192.168.1.123", new Mac("01:12:23:34:43:320"));
     //~do stuff
     //dev.auth();
     ```
-   
    
 3. Before any commands like ```getTemp()``` and ```enterLearning()```, ```BLDevice.auth()``` must be ran to connect and authenticate with the Broadlink device.
 
