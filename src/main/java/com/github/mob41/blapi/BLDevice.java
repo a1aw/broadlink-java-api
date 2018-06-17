@@ -369,7 +369,7 @@ public abstract class BLDevice implements Closeable {
     /**
      * Authenticates with the broadlink device, before any other control
      * commands
-     * @param Setting this to true forces to perform re-auth with the device. Defaults not to perform re-auth.
+     * @param reauth Setting this to true forces to perform re-auth with the device. Defaults not to perform re-auth.
      * @return Boolean whether this method is success or not
      * @throws IOException
      *             If I/O goes wrong
