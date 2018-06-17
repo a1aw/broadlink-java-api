@@ -1,6 +1,6 @@
-package com.github.mob41.blapi.device.hysen.cmd;
+package com.github.mob41.blapi.pkt.cmd.hysen;
 
-import com.github.mob41.blapi.device.hysen.Period;
+import com.github.mob41.blapi.dev.hysen.Period;
 
 public class SetPeriodsCommand extends BaseHysenCommand {
 

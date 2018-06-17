@@ -281,7 +281,7 @@ public abstract class BLDevice implements Closeable {
      * 
      * @param deviceType
      *            Device type constants (<code>BLDevice.DEV_*</code>)
-     * @param devDesc
+     * @param deviceDesc
      *            Friendly device description
      * @param host
      *            Hostname of target Broadlink device
@@ -359,8 +359,8 @@ public abstract class BLDevice implements Closeable {
 
     /**
      * Compatibility with previous code
-     * @return
-     * @throws IOException
+     * @return Boolean whether this method is success or not
+     * @throws IOException If I/O goes wrong
      */
     public boolean auth() throws IOException {
     	return auth(false);
@@ -369,8 +369,8 @@ public abstract class BLDevice implements Closeable {
     /**
      * Authenticates with the broadlink device, before any other control
      * commands
-     * 
-     * @return Boolean whether the method is success or not
+     * @param Setting this to true forces to perform re-auth with the device. Defaults not to perform re-auth.
+     * @return Boolean whether this method is success or not
      * @throws IOException
      *             If I/O goes wrong
      */
@@ -929,8 +929,6 @@ public abstract class BLDevice implements Closeable {
      *            The starting position to be picked
      * @param end
      *            The ending position to be picked
-     * @param endAtNull
-     *            Whether return at null
      * @return The bytes array picked with length (<code>end - start</code>)
      */
     public static byte[] subbytes(byte[] data, int start, int end) {
@@ -989,10 +987,6 @@ public abstract class BLDevice implements Closeable {
      *            Uses an external socket
      * @param pkt
      *            The compiled packet to be sent
-     * @param sourceIpAddr
-     *            Source IP address to be binded for receiving datagrams
-     * @param sourcePort
-     *            Source Port to be bineded for receiving datagrams
      * @param destIpAddr
      *            Destination IP address
      * @param destPort

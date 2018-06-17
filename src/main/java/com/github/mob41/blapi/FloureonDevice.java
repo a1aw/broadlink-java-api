@@ -31,7 +31,7 @@ package com.github.mob41.blapi;
 
 import java.io.IOException;
 
-import com.github.mob41.blapi.device.hysen.BaseHysenDevice;
+import com.github.mob41.blapi.dev.hysen.BaseHysenDevice;
 import com.github.mob41.blapi.mac.Mac;
 
 public class FloureonDevice extends BaseHysenDevice {

@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen.cmd;
+package com.github.mob41.blapi.pkt.cmd.hysen;
 
 public class SetModeCommand extends GenericByteCommand {
 

@@ -41,7 +41,7 @@ public class Mac {
     /**
      * Creates an instance representing the MAC address
      *
-     * @param macStr The 6-byte MAC address in byte array
+     * @param macBytes The 6-byte MAC address in byte array
      * @throws MacFormatException If the MAC address bytes array specified is not with length 6
      *                            or <code>null</code>
      */

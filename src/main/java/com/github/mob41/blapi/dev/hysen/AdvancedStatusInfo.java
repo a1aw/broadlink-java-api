@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 import java.util.Arrays;
 

@@ -63,7 +63,7 @@ public class CmdPacket implements Packet {
      *            {0,0,0,0} if auth() not ran
      * @param aesInstance
      *            The AES encrypt/decrypt instance
-     * @param payload
+     * @param cmdPayload
      *            The data to be sent
      */
     public CmdPacket(Mac targetMac, int count, byte[] id, AES aesInstance, CmdPayload cmdPayload) {

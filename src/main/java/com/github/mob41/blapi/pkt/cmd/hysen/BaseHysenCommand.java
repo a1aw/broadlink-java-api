@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen.cmd;
+package com.github.mob41.blapi.pkt.cmd.hysen;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.mob41.blapi.device.hysen.BaseHysenDevice;
+import com.github.mob41.blapi.dev.hysen.BaseHysenDevice;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Crc16;
 import com.github.mob41.blapi.pkt.Payload;

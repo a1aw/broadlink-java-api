@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 /**
  * Sensor control option
@@ -11,7 +11,6 @@ package com.github.mob41.blapi.device.hysen;
  * 
  * default: 0:internal sensor
  * 
- * @return
  */
 public enum SensorControl {
 

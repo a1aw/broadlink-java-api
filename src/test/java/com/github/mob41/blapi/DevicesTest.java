@@ -36,9 +36,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.mob41.blapi.device.hysen.AdvancedStatusInfo;
-import com.github.mob41.blapi.device.hysen.BaseHysenDevice;
-import com.github.mob41.blapi.device.hysen.LoopMode;
+import com.github.mob41.blapi.dev.hysen.AdvancedStatusInfo;
+import com.github.mob41.blapi.dev.hysen.BaseHysenDevice;
+import com.github.mob41.blapi.dev.hysen.LoopMode;
 
 public class DevicesTest {
 

@@ -41,7 +41,7 @@ public interface Packet {
     /**
      * Returns this packet's final compiled data
      * 
-     * @return
+     * @return Final compiled data
      */
     public byte[] getData();
 

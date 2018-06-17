@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 /**
  * Power on memory
@@ -9,7 +9,6 @@ package com.github.mob41.blapi.device.hysen;
  * 
  * default: 00:Power on no need memory
  * 
- * @return
  */
 public enum PowerOnMemory {
     ON_NO_NEED_MEM((byte) 0), //

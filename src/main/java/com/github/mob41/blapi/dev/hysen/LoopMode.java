@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 /**
  * loop_mode refers to index in [ "12345,67", "123456,7", "1234567" ] E.g.

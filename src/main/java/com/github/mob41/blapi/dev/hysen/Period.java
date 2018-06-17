@@ -1,4 +1,4 @@
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 /**
  * Represents a "Period" in what hysen calls "Time and interval programming"

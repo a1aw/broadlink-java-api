@@ -27,20 +27,20 @@
  *      - Christian Fischer (computerlyrik)
  *******************************************************************************/
 
-package com.github.mob41.blapi.device.hysen;
+package com.github.mob41.blapi.dev.hysen;
 
 import java.io.IOException;
 
 import javax.xml.bind.DatatypeConverter;
 
 import com.github.mob41.blapi.BLDevice;
-import com.github.mob41.blapi.device.hysen.cmd.GetBasicInfoCommand;
-import com.github.mob41.blapi.device.hysen.cmd.GetStatusCommand;
-import com.github.mob41.blapi.device.hysen.cmd.SetModeCommand;
-import com.github.mob41.blapi.device.hysen.cmd.SetPoweCommand;
-import com.github.mob41.blapi.device.hysen.cmd.SetPeriodsCommand;
-import com.github.mob41.blapi.device.hysen.cmd.SetTempCommand;
 import com.github.mob41.blapi.mac.Mac;
+import com.github.mob41.blapi.pkt.cmd.hysen.GetBasicInfoCommand;
+import com.github.mob41.blapi.pkt.cmd.hysen.GetStatusCommand;
+import com.github.mob41.blapi.pkt.cmd.hysen.SetModeCommand;
+import com.github.mob41.blapi.pkt.cmd.hysen.SetPeriodsCommand;
+import com.github.mob41.blapi.pkt.cmd.hysen.SetPoweCommand;
+import com.github.mob41.blapi.pkt.cmd.hysen.SetTempCommand;
 
 /**
  * Base hysen "class" thermostats
@@ -116,7 +116,7 @@ public class BaseHysenDevice extends BLDevice {
      * loop_mode = 2 ("1234567") means every day (including Saturday and Sunday)
      * follows the "weekday" schedule
      * 
-     * @throws Exception
+     * @throws Exception If I/O goes wrong
      */
     public void setMode(boolean autoMode, LoopMode loopMode, SensorControl sensorControl) throws Exception {
         new SetModeCommand(tob(autoMode), loopMode.getValue(), sensorControl.getValue()).execute(this);
@@ -131,7 +131,7 @@ public class BaseHysenDevice extends BLDevice {
      * loop_mode = 2 ("1234567") means every day (including Saturday and Sunday)
      * follows the "weekday" schedule
      * 
-     * @throws Exception
+     * @throws Exception If I/O goes wrong
      */
     public void setMode(boolean autoMode, LoopMode loopMode) throws Exception {
         BaseStatusInfo status = this.getBasicStatus();
