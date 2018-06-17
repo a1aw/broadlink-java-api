@@ -8,10 +8,15 @@ before_install:
 - chmod +x .travis/prepare
 - .travis/prepare
 
-after_script:
+before_deploy:
 - ls
 - chmod +x .travis/deploy
-- .travis/deploy
+
+deploy:
+  provider: script
+  script: bash .travis/deploy
+  on:
+    branch: master
 
 branches:
   only:
