@@ -25,9 +25,9 @@ deploy:
     branch: master
 
 after_deploy:
-- git config --global user.email "travis@travis-ci.org"
-- git config --global user.name "travis-ci"
-git clone --quiet
+# TODO: Auto JavaDoc Gen
+#- git config --global user.email "travis@travis-ci.org"
+#- git config --global user.name "travis-ci"
 
 branches:
   only:
