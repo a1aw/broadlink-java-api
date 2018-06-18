@@ -139,8 +139,20 @@
         		</execution>
       		</executions>
     	</plugin>
-   		</plugins>
- 	</build>
+    	<plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+            <version>2.7</version>
+            <configuration>
+                <formats>
+                    <format>html</format>
+                    <format>xml</format>
+                </formats>
+                <check />
+            </configuration>
+        </plugin>
+   	</plugins>
+  </build>
 	
-  <version>1.0.1</version>
+  <version>1.0.12</version>
 </project>
