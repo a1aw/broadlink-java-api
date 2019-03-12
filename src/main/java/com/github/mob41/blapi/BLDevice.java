@@ -108,6 +108,8 @@ public abstract class BLDevice implements Closeable {
 
     public static final short DEV_RM_MINI = 0x2737;
 
+    public static final short DEV_RM_MINI_3 = 0x27c2;
+
     public static final short DEV_RM_PRO_PHICOMM = 0x273d;
 
     public static final short DEV_RM_2_HOME_PLUS = 0x2783;
@@ -145,6 +147,8 @@ public abstract class BLDevice implements Closeable {
     public static final String DESC_RM_2 = "RM 2";
 
     public static final String DESC_RM_MINI = "RM Mini";
+
+    public static final String DESC_RM_MINI_3 = "RM Mini 3";
 
     public static final String DESC_RM_PRO_PHICOMM = "RM Pro";
 
@@ -562,6 +566,8 @@ public abstract class BLDevice implements Closeable {
             return new SP2Device(deviceType, desc, host, mac);
         case DEV_RM_2:
         case DEV_RM_MINI:
+        case DEV_RM_MINI_3:
+            return new RM2Device(deviceType, desc, host, mac);
         case DEV_RM_PRO_PHICOMM:
         case DEV_RM_2_HOME_PLUS:
         case DEV_RM_2_2HOME_PLUS_GDT:
@@ -760,6 +766,8 @@ public abstract class BLDevice implements Closeable {
             return DESC_RM_2;
         case BLDevice.DEV_RM_MINI:
             return DESC_RM_MINI;
+        case BLDevice.DEV_RM_MINI_3:
+            return DESC_RM_MINI_3;
         case BLDevice.DEV_RM_PRO_PHICOMM:
             return DESC_RM_PRO_PHICOMM;
         case BLDevice.DEV_RM_2_HOME_PLUS:
