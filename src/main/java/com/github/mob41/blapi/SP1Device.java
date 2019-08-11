@@ -32,7 +32,7 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import javax.xml.bind.DatatypeConverter;
+import static com.github.mob41.blapi.HexUtil.bytes2hex;
 
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
@@ -70,7 +70,7 @@ public class SP1Device extends BLDevice {
 
         byte[] data = packet.getData();
 
-        log.debug("SP1 set power received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("SP1 set power received encrypted bytes: " + bytes2hex(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 

@@ -31,7 +31,7 @@ package com.github.mob41.blapi.dev.hysen;
 
 import java.io.IOException;
 
-import javax.xml.bind.DatatypeConverter;
+import static com.github.mob41.blapi.HexUtil.bytes2hex;
 
 import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.mac.Mac;
@@ -92,7 +92,7 @@ public class BaseHysenDevice extends BLDevice {
     public BaseStatusInfo getBasicStatus() throws Exception {
         byte[] pl = new GetBasicInfoCommand().execute(this);
         if (pl != null) {
-            log.debug("getBasicStatus - received bytes: {}", DatatypeConverter.printHexBinary(pl));
+            log.debug("getBasicStatus - received bytes: {}", bytes2hex(pl));
             return new BaseStatusInfo(pl);
         }
         return null;
@@ -101,7 +101,7 @@ public class BaseHysenDevice extends BLDevice {
     public AdvancedStatusInfo getAdvancedStatus() throws Exception {
         byte[] pl = new GetStatusCommand().execute(this);
         if (pl != null) {
-            log.debug("getAdvancedStatus - received bytes: {}", DatatypeConverter.printHexBinary(pl));
+            log.debug("getAdvancedStatus - received bytes: {}", bytes2hex(pl));
             return new AdvancedStatusInfo(pl);
         }
         return null;

@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import javax.xml.bind.DatatypeConverter;
+import static com.github.mob41.blapi.HexUtil.bytes2hex;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -389,7 +389,7 @@ public abstract class BLDevice implements Closeable {
         log.debug("auth Sending CmdPacket with AuthCmdPayload: cmd=" + Integer.toHexString(sendPayload.getCommand())
                     + " len=" + sendPayload.getPayload().getData().length);
 
-        log.debug("auth AuthPayload initial bytes to send: {}", DatatypeConverter.printHexBinary(sendPayload.getPayload().getData()));
+        log.debug("auth AuthPayload initial bytes to send: {}", bytes2hex(sendPayload.getPayload().getData()));
 
         DatagramPacket recvPack = sendCmdPkt(10000, 2048, sendPayload);
 
@@ -401,7 +401,7 @@ public abstract class BLDevice implements Closeable {
             return false;
         }
 
-        log.debug("auth recv encrypted data bytes (" + data.length +") after initial req: {}", DatatypeConverter.printHexBinary(data));
+        log.debug("auth recv encrypted data bytes (" + data.length +") after initial req: {}", bytes2hex(data));
 
         byte[] payload = null;
         try {
@@ -417,11 +417,11 @@ public abstract class BLDevice implements Closeable {
             return false;
         }
 
-        log.debug("auth Packet received payload bytes: " + DatatypeConverter.printHexBinary(payload));
+        log.debug("auth Packet received payload bytes: " + bytes2hex(payload));
 
         key = subbytes(payload, 0x04, 0x14);
 
-        log.debug("auth Packet received key bytes: " + DatatypeConverter.printHexBinary(key));
+        log.debug("auth Packet received key bytes: " + bytes2hex(key));
 
         if (key.length % 16 != 0) {
             log.error("auth Received key len is not a multiple of 16! Aborting");
@@ -434,7 +434,7 @@ public abstract class BLDevice implements Closeable {
 
         id = subbytes(payload, 0x00, 0x04);
 
-        log.debug("auth Packet received id bytes: " + DatatypeConverter.printHexBinary(id) + " with ID len=" + id.length);
+        log.debug("auth Packet received id bytes: " + bytes2hex(id) + " with ID len=" + id.length);
 
         log.debug("auth End of authentication method");
         alreadyAuthorized = true;
@@ -530,7 +530,7 @@ public abstract class BLDevice implements Closeable {
     public DatagramPacket sendCmdPkt(InetAddress sourceIpAddr, int sourcePort, int timeout, int bufSize,
             CmdPayload cmdPayload) throws IOException {
         CmdPacket cmdPkt = new CmdPacket(mac, pktCount++, id, aes, cmdPayload);
-        log.debug("sendCmdPkt - Send Command Packet bytes: {}", DatatypeConverter.printHexBinary(cmdPkt.getData()));
+        log.debug("sendCmdPkt - Send Command Packet bytes: {}", bytes2hex(cmdPkt.getData()));
         return sendPkt(sock, cmdPkt, InetAddress.getByName(host), 80, timeout, bufSize);
     }
 
@@ -1041,7 +1041,7 @@ public abstract class BLDevice implements Closeable {
             }
         }
 
-        log.debug("sendPkt - recv data bytes (" + recepack.getData().length +") after initial req: {}", DatatypeConverter.printHexBinary(recepack.getData()));
+        log.debug("sendPkt - recv data bytes (" + recepack.getData().length +") after initial req: {}", bytes2hex(recepack.getData()));
         recepack.setData(removeNullsFromEnd(recepack.getData(), 0));
         return recepack;
     }

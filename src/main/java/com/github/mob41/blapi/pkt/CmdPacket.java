@@ -28,8 +28,6 @@
  *******************************************************************************/
 package com.github.mob41.blapi.pkt;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +35,7 @@ import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
-
+import static com.github.mob41.blapi.HexUtil.bytes2hex;
 /**
  * This constructs a byte array with the format of a command to the Broadlink
  * device
@@ -133,7 +131,7 @@ public class CmdPacket implements Packet {
 
         int checksumpayload = 0xbeaf;
         for (int i = 0; i < payloadPad.length; i++) {
-            checksumpayload = checksumpayload + Byte.toUnsignedInt(payloadPad[i]);
+            checksumpayload = checksumpayload + (int)(Byte.valueOf(payloadPad[i]).intValue() & 0xff);
             checksumpayload = checksumpayload & 0xffff;
         }
 
@@ -146,7 +144,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aesInstance.encrypt(payloadPad);
-            log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
+            log.debug("Encrypted payload bytes: {}", bytes2hex(payload));
 
             log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {
@@ -168,7 +166,7 @@ public class CmdPacket implements Packet {
 
         int checksumpkt = 0xbeaf;
         for (int i = 0; i < data.length; i++) {
-            checksumpkt = checksumpkt + Byte.toUnsignedInt(data[i]);
+            checksumpkt = checksumpkt + (int)(Byte.valueOf(data[i]).intValue() & 0xff);
             checksumpkt = checksumpkt & 0xffff;
 //            log.debug("index: " + i + ", data byte: " + Byte.toUnsignedInt(data[i]) + ", checksum: " + checksumpkt);
         }
