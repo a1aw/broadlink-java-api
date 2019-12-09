@@ -32,7 +32,7 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import javax.xml.bind.DatatypeConverter;
+import static com.github.mob41.blapi.HexUtil.bytes2hex;
 
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
@@ -75,7 +75,7 @@ public class SP2Device extends BLDevice {
 
         byte[] data = packet.getData();
 
-        log.debug("SP2 set state received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("SP2 set state received encrypted bytes: " + bytes2hex(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
@@ -109,13 +109,13 @@ public class SP2Device extends BLDevice {
         });
         byte[] data = packet.getData();
 
-        log.debug("SP2 get state received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("SP2 get state received encrypted bytes: " + bytes2hex(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
-            log.debug("SP2 get state  received bytes (decrypted): " + DatatypeConverter.printHexBinary(pl));
+            log.debug("SP2 get state  received bytes (decrypted): " + bytes2hex(pl));
             return pl[0x4] == 1 ? true : false;
         } else {
             log.warn("SP2 get state received an error: " + Integer.toHexString(err) + " / " + err);
