@@ -1,5 +1,8 @@
 package com.github.mob41.blapi.dev.hysen;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Base set of status codes
  * 
@@ -8,6 +11,10 @@ package com.github.mob41.blapi.dev.hysen;
  * @author alpapad
  */
 public class BaseStatusInfo {
+    /**
+     * The specific logger for this class
+     */
+    protected static final Logger log = LoggerFactory.getLogger(BaseStatusInfo.class);	
     // remote_lock
     protected final boolean remoteLock;
     protected final boolean power;
@@ -44,14 +51,25 @@ public class BaseStatusInfo {
     // external_temp
     protected final double externalTemp;
 
+	private static String bytesToString(byte[] hashInBytes) {
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashInBytes) {
+            sb.append(String.format("%04d ", b));
+        }
+        return sb.toString();
+
+    }
+	
     protected BaseStatusInfo(byte[] payload) {
+    	log.debug("payload: {}",bytesToString(payload));
         this.remoteLock = byteToBool((byte) (payload[3] & 0x1));
         this.power = byteToBool((byte) (payload[4] & 1));
         this.active = byteToBool((byte) ((payload[4] >> 4) & 1));
         this.manualTemp = byteToBool((byte) ((payload[4] >> 6) & 1));
         this.roomTemp = (payload[5] & 0xff) / 2.0;
         this.thermostatTemp = (payload[6] & 0xff) / 2.0;
-        this.autoMode = byteToBool((byte) (payload[7] & 15));
+        this.autoMode = (byte)(payload[7] & 15) != 0;
         this.loopMode = LoopMode.fromValue((byte) (((payload[7] >> 4)) - 1));
         this.sensorControl = SensorControl.fromValue(payload[8]);
         this.osv = payload[9];
