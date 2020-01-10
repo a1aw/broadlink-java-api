@@ -32,16 +32,17 @@ public class AdvancedStatusInfo extends BaseStatusInfo {
         this.min = payload[20];
         this.sec = payload[21];
         this.dayofweek = payload[22];
-
-        for (int i = 0; i < 6; i++) {
-            this.periods[i] = new Period(i, payload);
-            this.weekday[i] = this.periods[i];
-
-        }
-
-        for (int i = 6; i <= 7; i++) {
-            this.periods[i] = new Period(i, payload);
-            this.weekend[i - 6] = this.periods[i];
+        if (payload.length>=46) {	
+	        for (int i = 0; i < 6; i++) {
+	            this.periods[i] = new Period(i, payload);
+	            this.weekday[i] = this.periods[i];
+	
+	        }
+	
+	        for (int i = 6; i <= 7; i++) {
+	            this.periods[i] = new Period(i, payload);
+	            this.weekend[i - 6] = this.periods[i];
+	        }
         }
     }
 
