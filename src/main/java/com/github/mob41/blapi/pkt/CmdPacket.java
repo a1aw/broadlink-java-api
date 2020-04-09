@@ -28,7 +28,7 @@
  *******************************************************************************/
 package com.github.mob41.blapi.pkt;
 
-import javax.xml.bind.DatatypeConverter;
+import com.github.mob41.blapi.ByteToHexString;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +37,8 @@ import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.ex.BLApiRuntimeException;
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.auth.AES;
+
+import static com.github.mob41.blapi.ByteToHexString.*;
 
 /**
  * This constructs a byte array with the format of a command to the Broadlink
@@ -146,7 +148,7 @@ public class CmdPacket implements Packet {
             log.debug("Encrypting payload");
 
             payload = aesInstance.encrypt(payloadPad);
-            log.debug("Encrypted payload bytes: {}", DatatypeConverter.printHexBinary(payload));
+            log.debug("Encrypted payload bytes: {}", toHexString(payload));
 
             log.debug("Encrypted. len=" + payload.length);
         } catch (Exception e) {

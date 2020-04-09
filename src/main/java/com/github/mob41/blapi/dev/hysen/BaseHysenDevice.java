@@ -31,7 +31,7 @@ package com.github.mob41.blapi.dev.hysen;
 
 import java.io.IOException;
 
-import javax.xml.bind.DatatypeConverter;
+import com.github.mob41.blapi.ByteToHexString;
 
 import com.github.mob41.blapi.BLDevice;
 import com.github.mob41.blapi.mac.Mac;
@@ -41,6 +41,8 @@ import com.github.mob41.blapi.pkt.cmd.hysen.SetModeCommand;
 import com.github.mob41.blapi.pkt.cmd.hysen.SetPeriodsCommand;
 import com.github.mob41.blapi.pkt.cmd.hysen.SetPoweCommand;
 import com.github.mob41.blapi.pkt.cmd.hysen.SetTempCommand;
+
+import static com.github.mob41.blapi.ByteToHexString.*;
 
 /**
  * Base hysen "class" thermostats
@@ -92,7 +94,7 @@ public class BaseHysenDevice extends BLDevice {
     public BaseStatusInfo getBasicStatus() throws Exception {
         byte[] pl = new GetBasicInfoCommand().execute(this);
         if (pl != null) {
-            log.debug("getBasicStatus - received bytes: {}", DatatypeConverter.printHexBinary(pl));
+            log.debug("getBasicStatus - received bytes: {}", toHexString(pl));
             return new BaseStatusInfo(pl);
         }
         return null;
@@ -101,7 +103,7 @@ public class BaseHysenDevice extends BLDevice {
     public AdvancedStatusInfo getAdvancedStatus() throws Exception {
         byte[] pl = new GetStatusCommand().execute(this);
         if (pl != null) {
-            log.debug("getAdvancedStatus - received bytes: {}", DatatypeConverter.printHexBinary(pl));
+            log.debug("getAdvancedStatus - received bytes: {}", toHexString(pl));
             return new AdvancedStatusInfo(pl);
         }
         return null;

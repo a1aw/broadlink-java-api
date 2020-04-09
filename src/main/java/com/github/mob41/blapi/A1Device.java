@@ -31,11 +31,11 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import javax.xml.bind.DatatypeConverter;
-
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
+
+import static com.github.mob41.blapi.ByteToHexString.*;
 
 public class A1Device extends BLDevice {
 
@@ -68,13 +68,13 @@ public class A1Device extends BLDevice {
         });
         byte[] data = packet.getData();
 
-        log.debug("A1 check sensors received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("A1 check sensors received encrypted bytes: " + toHexString(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
-            log.debug("A1 check sensors received bytes (decrypted):" + DatatypeConverter.printHexBinary(pl));
+            log.debug("A1 check sensors received bytes (decrypted):" + toHexString(pl));
 
             float temp = (float) ((pl[0x4] * 10 + pl[0x5]) / 10.0);
             float hum = (float) ((pl[0x6] * 10 + pl[0x7]) / 10.0);
