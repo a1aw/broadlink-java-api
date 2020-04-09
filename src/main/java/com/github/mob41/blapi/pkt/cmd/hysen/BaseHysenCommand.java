@@ -3,8 +3,6 @@ package com.github.mob41.blapi.pkt.cmd.hysen;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +11,14 @@ import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Crc16;
 import com.github.mob41.blapi.pkt.Payload;
 
+import static com.github.mob41.blapi.ByteToHexString.*;
+
 /**
  * Base hysen command Payload. Handles crc calculation
- * 
- * 
+ *
+ *
  * Adapted from https://github.com/mjg59/python-broadlink
- * 
+ *
  * @author alpapad
  *
  */
@@ -32,15 +32,13 @@ public abstract class BaseHysenCommand implements CmdPayload {
 
         byte[] data = packet.getData();
 
-        log.debug(this.getClass().getSimpleName() + " received encrypted bytes: "
-                + DatatypeConverter.printHexBinary(data));
+        log.debug(this.getClass().getSimpleName() + " received encrypted bytes: " + toHexString(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = device.decryptFromDeviceMessage(data);
-            log.debug(this.getClass().getSimpleName() + " received bytes (decrypted): "
-                    + DatatypeConverter.printHexBinary(pl));
+            log.debug(this.getClass().getSimpleName() + " received bytes (decrypted): " + toHexString(pl));
             return Arrays.copyOfRange(pl, 2, pl.length);
         } else {
             log.warn(this.getClass().getSimpleName() + " received an error: " + Integer.toHexString(err) + " / " + err);
@@ -59,7 +57,7 @@ public abstract class BaseHysenCommand implements CmdPayload {
             /**
              * hysen thermostats require a crc16 calculated on the payload before it can be
              * send and a length field.
-             * 
+             *
              * Payload format: 2 bytes len: first byte is len, second is 0. len includes
              * also CRC (2 bytes_ X bytes payload 2 bytes CRC16 in ModBus format
              */

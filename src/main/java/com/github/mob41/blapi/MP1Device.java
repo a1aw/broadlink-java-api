@@ -32,11 +32,11 @@ package com.github.mob41.blapi;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-import javax.xml.bind.DatatypeConverter;
-
 import com.github.mob41.blapi.mac.Mac;
 import com.github.mob41.blapi.pkt.CmdPayload;
 import com.github.mob41.blapi.pkt.Payload;
+
+import static com.github.mob41.blapi.ByteToHexString.*;
 
 public class MP1Device extends BLDevice {
     /**
@@ -116,7 +116,7 @@ public class MP1Device extends BLDevice {
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
-        	log.debug("MP1 set state mask received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        	log.debug("MP1 set state mask received encrypted bytes: " + toHexString(data));
         } else {
             log.warn("MP1 set state mask received returned err: " + Integer.toHexString(err) + " / " + err);        	
         }
@@ -171,13 +171,13 @@ public class MP1Device extends BLDevice {
 
         byte[] data = packet.getData();
 
-        log.debug("MP1 get states raw received encrypted bytes: " + DatatypeConverter.printHexBinary(data));
+        log.debug("MP1 get states raw received encrypted bytes: " + toHexString(data));
 
         int err = data[0x22] | (data[0x23] << 8);
 
         if (err == 0) {
             byte[] pl = decryptFromDeviceMessage(data);
-            log.debug("MP1 get states raw received bytes (decrypted): " + DatatypeConverter.printHexBinary(pl));
+            log.debug("MP1 get states raw received bytes (decrypted): " + toHexString(pl));
             byte state = 0;
             if (pl[0x3c] >= 48 && pl[0x3c] <= 57) {
                 String decodeValue1;
