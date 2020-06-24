@@ -31,19 +31,20 @@ public abstract class BaseHysenCommand implements CmdPayload {
         DatagramPacket packet = device.sendCmdPkt(this);
 
         byte[] data = packet.getData();
-
-        log.debug(this.getClass().getSimpleName() + " received encrypted bytes: "
-                + DatatypeConverter.printHexBinary(data));
-
-        int err = data[0x22] | (data[0x23] << 8);
-
-        if (err == 0) {
-            byte[] pl = device.decryptFromDeviceMessage(data);
-            log.debug(this.getClass().getSimpleName() + " received bytes (decrypted): "
-                    + DatatypeConverter.printHexBinary(pl));
-            return Arrays.copyOfRange(pl, 2, pl.length);
-        } else {
-            log.warn(this.getClass().getSimpleName() + " received an error: " + Integer.toHexString(err) + " / " + err);
+        if (data != null && data.length>34) {
+	        log.debug(this.getClass().getSimpleName() + " received encrypted bytes: "
+	                + DatatypeConverter.printHexBinary(data));
+	
+	        int err = data[0x22] | (data[0x23] << 8);
+	
+	        if (err == 0) {
+	            byte[] pl = device.decryptFromDeviceMessage(data);
+	            log.debug(this.getClass().getSimpleName() + " received bytes (decrypted): "
+	                    + DatatypeConverter.printHexBinary(pl));
+	            return Arrays.copyOfRange(pl, 2, pl.length);
+	        } else {
+	            log.warn(this.getClass().getSimpleName() + " received an error: " + Integer.toHexString(err) + " / " + err);
+	        }
         }
         return null;
     }
