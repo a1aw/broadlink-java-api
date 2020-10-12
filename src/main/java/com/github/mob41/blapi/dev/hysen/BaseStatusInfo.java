@@ -19,6 +19,7 @@ public class BaseStatusInfo {
     protected final boolean remoteLock;
     protected final boolean power;
     protected final boolean active;
+    protected final boolean rtdOpen;
     // temp_manual
     protected final boolean manualTemp;
     // room_temp
@@ -51,6 +52,16 @@ public class BaseStatusInfo {
     // external_temp
     protected final double externalTemp;
 
+    private String bytesToHex(byte[] hashInBytes) {
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashInBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+
+    }
+    
 	private static String bytesToString(byte[] hashInBytes) {
 
         StringBuilder sb = new StringBuilder();
@@ -61,11 +72,19 @@ public class BaseStatusInfo {
 
     }
 	
-    protected BaseStatusInfo(byte[] payload) {
+	private static byte[] toIndexArray(byte[] array) {
+		byte index[] = new byte[array.length];
+		for(byte i = 0;i<array.length;i++)
+			index[i]=i;
+		return index;
+	}    
+    
+  protected BaseStatusInfo(byte[] payload) {
     	log.debug("payload: {}",bytesToString(payload));
         this.remoteLock = byteToBool((byte) (payload[3] & 0x1));
         this.power = byteToBool((byte) (payload[4] & 1));
         this.active = byteToBool((byte) ((payload[4] >> 4) & 1));
+        this.rtdOpen = byteToBool((byte) ((payload[4] >> 5) & 1));
         this.manualTemp = byteToBool((byte) ((payload[4] >> 6) & 1));
         this.roomTemp = (payload[5] & 0xff) / 2.0;
         this.thermostatTemp = (payload[6] & 0xff) / 2.0;
@@ -81,7 +100,6 @@ public class BaseStatusInfo {
             tempAdj = (32767 - tempAdj);
         }
         this.roomTempAdjustment = tempAdj;
-
         this.antiFreezing = AntiFreezing.fromValue(payload[15]);
         this.powerOnMemory = PowerOnMemory.fromValue(payload[16]);
         this.fac = payload[17];
@@ -99,6 +117,10 @@ public class BaseStatusInfo {
     public boolean getActive() {
         return active;
     }
+    
+    public boolean getRtdOpen() {
+        return rtdOpen;
+    }    
 
     public boolean getManualTemp() {
         return manualTemp;
@@ -261,7 +283,7 @@ public class BaseStatusInfo {
 
     @Override
     public String toString() {
-        return "BaseStatusInfo [\nremote lock=" + remoteLock + ",\n power=" + power + ",\n active=" + active
+        return "BaseStatusInfo [\nremote lock=" + remoteLock + ",\n power=" + power + ",\n active=" + active + ",\n rtd_open=" + rtdOpen
                 + ",\n manual temp=" + manualTemp + ",\n room temp=" + roomTemp + ",\n thermostat temp="
                 + thermostatTemp + ",\n auto_mode=" + autoMode + ",\n loop_mode=" + loopMode + ",\n sensor="
                 + sensorControl + ",\n osv=" + osv + ",\n dif=" + dif + ",\n svh=" + svh + ",\n svl=" + svl

@@ -13,9 +13,19 @@ public class Period {
     private final double temp;
 
     protected Period(int offset, byte[] payload) {
-        this.startHour = payload[2 * offset + 23];
-        this.startMinute = payload[2 * offset + 24];
-        this.temp = payload[offset + 39] / 2.0;
+        int iStartHour = 2 * offset + 23;
+        int iStartMin = 2 * offset + 24;
+        int iTemp = offset + 39;
+        if ((iStartHour<payload.length)&&(iStartMin<payload.length)&&(iTemp<payload.length)){
+			this.startHour = payload[iStartHour];
+			this.startMinute = payload[iStartMin];
+			this.temp = payload[iTemp] / 2.0;
+        }
+        else {
+			this.startHour = 0;
+			this.startMinute = 0;
+			this.temp = 0.0;        	
+        }
     }
 
     public short getStartHour() {

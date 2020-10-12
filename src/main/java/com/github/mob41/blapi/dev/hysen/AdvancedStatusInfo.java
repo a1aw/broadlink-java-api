@@ -27,23 +27,34 @@ public class AdvancedStatusInfo extends BaseStatusInfo {
 
     protected AdvancedStatusInfo(byte[] payload) {
         super(payload);
+        if ((payload[19]>=0)&&(payload[19]<24))
+        	this.hour = payload[19];
+        else
+        	this.hour = 0;
+        if ((payload[20]>=0)&&(payload[20]<60))
+        	this.min = payload[20];
+        else
+        	this.min = 0;
+        if ((payload[21]>=0)&&(payload[21]<60))
+        	this.sec = payload[21];
+        else
+        	this.sec = 0;
+        if ((payload[22]>0)&&(payload[22]<=7))
+        	this.dayofweek = payload[22];
+        else
+        	this.dayofweek = 1;        
+        for (int i = 0; i < 6; i++) {
+            this.periods[i] = new Period(i, payload);
+            this.weekday[i] = this.periods[i];
 
-        this.hour = payload[19];
-        this.min = payload[20];
-        this.sec = payload[21];
-        this.dayofweek = payload[22];
-        if (payload.length>=46) {	
-	        for (int i = 0; i < 6; i++) {
-	            this.periods[i] = new Period(i, payload);
-	            this.weekday[i] = this.periods[i];
-	
-	        }
-	
-	        for (int i = 6; i <= 7; i++) {
-	            this.periods[i] = new Period(i, payload);
-	            this.weekend[i - 6] = this.periods[i];
-	        }
         }
+
+        for (int i = 6; i <= 7; i++) {
+            this.periods[i] = new Period(i, payload);
+            this.weekend[i - 6] = this.periods[i];
+
+        }
+
     }
 
     public short getHour() {
@@ -76,7 +87,7 @@ public class AdvancedStatusInfo extends BaseStatusInfo {
 
     @Override
     public String toString() {
-        return "StatusInfo [remote lock=" + remoteLock + ",\n power=" + power + ",\n active=" + active
+        return "StatusInfo [remote lock=" + remoteLock + ",\n power=" + power + ",\n active=" + active + ",\n rtd_open=" + rtdOpen
                 + ",\n manual temperature=" + manualTemp + ",\n room temp=" + roomTemp + ",\n thermostat temp="
                 + thermostatTemp + ",\n auto_mode=" + autoMode + ",\n loop_mode=" + loopMode + ",\n SensorControl="
                 + sensorControl + ",\n osv=" + osv + ",\n dif=" + dif + ",\n svh=" + svh + ",\n svl=" + svl
