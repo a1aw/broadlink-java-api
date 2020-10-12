@@ -939,14 +939,16 @@ public abstract class BLDevice implements Closeable {
      *            The ending position to be picked
      * @return The bytes array picked with length (<code>end - start</code>)
      */
-    public static byte[] subbytes(byte[] data, int start, int end) {
-        byte[] out = new byte[end - start];
-
-        int outi = 0;
-        for (int i = start; i < end; i++, outi++) {
-            out[outi] = data[i];
-        }
-
+    public static byte[] subbytes(byte[] data, int start, int end) { 
+    	byte[] out = null;
+    	if ((end-start)>0) {
+	        out = new byte[end - start];
+	
+	        int outi = 0;
+	        for (int i = start; i < end; i++, outi++) {
+	            out[outi] = data[i];
+	        }
+    	}
         return out;
     }
 
