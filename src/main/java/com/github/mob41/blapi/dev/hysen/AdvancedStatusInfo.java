@@ -52,6 +52,7 @@ public class AdvancedStatusInfo extends BaseStatusInfo {
         for (int i = 6; i <= 7; i++) {
             this.periods[i] = new Period(i, payload);
             this.weekend[i - 6] = this.periods[i];
+
         }
 
     }

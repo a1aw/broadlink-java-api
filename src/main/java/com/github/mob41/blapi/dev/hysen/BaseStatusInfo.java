@@ -79,7 +79,7 @@ public class BaseStatusInfo {
 		return index;
 	}    
     
-    protected BaseStatusInfo(byte[] payload) {
+  protected BaseStatusInfo(byte[] payload) {
     	log.debug("payload: {}",bytesToString(payload));
         this.remoteLock = byteToBool((byte) (payload[3] & 0x1));
         this.power = byteToBool((byte) (payload[4] & 1));
